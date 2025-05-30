@@ -36,9 +36,11 @@ const ModelComparison = () => {
   const [filterProviders, setFilterProviders] = useState<string[]>(["all"]);
 
   const allProviders = [
-    "all",
-    ...Array.from(new Set(uniqueModelComparisonData.map((m) => m.provider))),
-  ].sort();
+    "All",
+    ...Array.from(
+      new Set(uniqueModelComparisonData.map((m) => m.provider))
+    ).sort(),
+  ];
 
   const filteredModels = uniqueModelComparisonData.filter(
     (model) =>
@@ -98,8 +100,6 @@ const ModelComparison = () => {
         return "bg-teal-100 text-teal-800"; // Added for Microsoft
       case "Alibaba Cloud":
         return "bg-purple-100 text-purple-800"; // Re-using purple, or choose new
-      case "Unknown":
-        return "bg-gray-200 text-gray-700"; // Slightly different for Unknown provider
       default:
         return "bg-gray-100 text-gray-800";
     }
