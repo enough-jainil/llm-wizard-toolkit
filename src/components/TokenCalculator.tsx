@@ -1,13 +1,36 @@
-
-import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Hash, FileText, Download, Upload, Image, Video, AudioLines, Calculator, AlertCircle, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Hash,
+  FileText,
+  Download,
+  Upload,
+  Image,
+  Video,
+  AudioLines,
+  Calculator,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import { get_encoding, encoding_for_model, Tiktoken } from "tiktoken";
 
 interface TokenizerInfo {
   name: string;
@@ -21,6 +44,7 @@ interface TokenizerInfo {
     small: number;
     large: number;
   };
+  imageTokenizationMode?: "fixed" | "formula";
   videoTokensPerSecond?: number;
   audioTokensPerSecond?: number;
   tokenizerType: string;
@@ -30,201 +54,334 @@ interface TokenizerInfo {
   };
 }
 
+interface AnalysisEntry {
+  id: number;
+  text: string; // truncated
+  tokenizer: string;
+  multimodal: {
+    imageCount: number;
+    imageSizeCategory: "small" | "large";
+    videoDurationSeconds: number;
+    audioDurationSeconds: number;
+  };
+  characters: number;
+  words: number;
+  sentences: number;
+  paragraphs: number;
+  estimatedTokens: number;
+  tokenDensity: string;
+  breakdown: {
+    textTokens: number;
+    imageTokens: number;
+    videoTokens: number;
+    audioTokens: number;
+  };
+  contextUsagePercent: string;
+  estimatedCost: number;
+  timestamp: string;
+}
+
 const tokenizers: TokenizerInfo[] = [
-  { 
-    name: 'GPT-4o/GPT-4o-mini', 
-    provider: 'OpenAI', 
-    avgTokensPerWord: 1.3, 
+  {
+    name: "GPT-4o/GPT-4o-mini",
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
     avgCharsPerToken: 4,
-    description: 'OpenAI tiktoken encoder (o200k_base) with vision support', 
+    description: "OpenAI tiktoken encoder (o200k_base) with vision support",
     contextWindow: 128000,
     outputLimit: 16384,
     imageTokens: { small: 85, large: 170 },
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: 'BPE (Byte Pair Encoding)',
-    costPer1kTokens: { input: 2.5, output: 10.0 }
+    tokenizerType: "BPE (Byte Pair Encoding)",
+    costPer1kTokens: { input: 2.5, output: 10.0 },
   },
-  { 
-    name: 'Claude 3.5 Sonnet', 
-    provider: 'Anthropic', 
-    avgTokensPerWord: 1.25, 
+  {
+    name: "Claude 3.5 Sonnet",
+    provider: "Anthropic",
+    avgTokensPerWord: 1.25,
     avgCharsPerToken: 3.2,
-    description: 'Anthropic tokenizer with extended thinking support', 
+    description:
+      "Anthropic tokenizer with extended thinking support. Image tokens calculated by (W * H) / 750.",
     contextWindow: 200000,
     outputLimit: 8192,
-    imageTokens: { small: 258, large: 258 },
+    imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: 'Custom subword tokenizer',
-    costPer1kTokens: { input: 3.0, output: 15.0 }
+    tokenizerType: "Custom subword tokenizer",
+    costPer1kTokens: { input: 3.0, output: 15.0 },
   },
-  { 
-    name: 'Gemini 2.0 Flash', 
-    provider: 'Google', 
-    avgTokensPerWord: 1.2, 
+  {
+    name: "Gemini 2.0 Flash",
+    provider: "Google",
+    avgTokensPerWord: 1.2,
     avgCharsPerToken: 4,
-    description: 'Google SentencePiece with advanced multimodal support', 
+    description: "Google SentencePiece with advanced multimodal support",
     contextWindow: 1000000,
     outputLimit: 8000,
     imageTokens: { small: 258, large: 258 },
     videoTokensPerSecond: 263,
     audioTokensPerSecond: 32,
-    tokenizerType: 'SentencePiece',
-    costPer1kTokens: { input: 0.075, output: 0.3 }
+    tokenizerType: "SentencePiece",
+    costPer1kTokens: { input: 0.075, output: 0.3 },
   },
-  { 
-    name: 'Grok-3', 
-    provider: 'xAI', 
-    avgTokensPerWord: 1.35, 
+  {
+    name: "Grok-3",
+    provider: "xAI",
+    avgTokensPerWord: 1.35,
     avgCharsPerToken: 3.7,
-    description: 'xAI Grok tokenizer with reasoning capabilities', 
+    description: "xAI Grok tokenizer with reasoning capabilities",
     contextWindow: 131072,
     outputLimit: 4096,
     imageTokens: { small: 256, large: 1792 },
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: 'Modified BPE',
-    costPer1kTokens: { input: 5.0, output: 15.0 }
+    tokenizerType: "Modified BPE",
+    costPer1kTokens: { input: 5.0, output: 15.0 },
   },
 ];
 
+// Initialize o200k_base encoder for OpenAI models that use it (GPT-4o)
+// We are doing this outside the component to avoid re-initializing on every render.
+// Ensure this specific encoding name is correct for your models.
+let o200kEncoder: Tiktoken | null = null;
+try {
+  o200kEncoder = encoding_for_model("gpt-4o"); // or get_encoding("o200k_base")
+} catch (e) {
+  console.error("Failed to initialize o200k_base tiktoken encoder:", e);
+  // Fallback or error handling if encoder can't be initialized
+}
+
 const TokenCalculator = () => {
-  const [text, setText] = useState('');
-  const [selectedTokenizer, setSelectedTokenizer] = useState('GPT-4o/GPT-4o-mini');
-  const [analysisHistory, setAnalysisHistory] = useState<any[]>([]);
+  const [text, setText] = useState("");
+  const [selectedTokenizer, setSelectedTokenizer] =
+    useState("GPT-4o/GPT-4o-mini");
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisEntry[]>([]);
   const [multimodalContent, setMultimodalContent] = useState({
     imageCount: 0,
-    imageSizeCategory: 'small' as 'small' | 'large',
+    imageSizeCategory: "small" as "small" | "large",
+    imageWidth: 1024,
+    imageHeight: 1024,
     videoDurationSeconds: 0,
-    audioDurationSeconds: 0
+    audioDurationSeconds: 0,
   });
+  const [expectedOutputWords, setExpectedOutputWords] = useState(0);
 
-  const currentTokenizer = tokenizers.find(t => t.name === selectedTokenizer);
+  const currentTokenizer = tokenizers.find((t) => t.name === selectedTokenizer);
 
   // Enhanced token calculation with provider-specific accuracy
   const metrics = useMemo(() => {
     const characters = text.length;
-    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    const sentences = text.trim() ? text.split(/[.!?]+/).filter(s => s.trim()).length : 0;
-    const paragraphs = text.trim() ? text.split(/\n\s*\n/).filter(p => p.trim()).length : 0;
-    
-    if (!currentTokenizer) return { 
-      characters, words, sentences, paragraphs, estimatedTokens: 0, 
-      tokenDensity: '0', breakdown: {}, contextUsagePercent: '0', estimatedCost: 0 
-    };
-    
+    const words = text.trim()
+      ? text
+          .trim()
+          .split(/\W+/)
+          .filter((w) => w.length > 0).length
+      : 0;
+    const sentences = text.trim()
+      ? text.split(/[.!?]+/).filter((s) => s.trim()).length
+      : 0;
+    const paragraphs = text.trim()
+      ? text.split(/\n\s*\n/).filter((p) => p.trim()).length
+      : 0;
+
+    if (!currentTokenizer)
+      return {
+        characters,
+        words,
+        sentences,
+        paragraphs,
+        estimatedTokens: 0,
+        tokenDensity: "0",
+        breakdown: {
+          textTokens: 0,
+          imageTokens: 0,
+          videoTokens: 0,
+          audioTokens: 0,
+        },
+        contextUsagePercent: "0",
+        estimatedCost: 0,
+      };
+
     // Provider-specific text tokenization
     let textTokens = 0;
     if (words > 0) {
-      // More accurate estimation based on provider characteristics
-      switch (currentTokenizer.provider) {
-        case 'OpenAI':
-          // GPT models use tiktoken which is more efficient with common English
-          textTokens = Math.ceil(words * currentTokenizer.avgTokensPerWord * 0.95);
-          break;
-        case 'Anthropic':
-          // Claude is slightly more efficient
-          textTokens = Math.ceil(words * currentTokenizer.avgTokensPerWord * 0.9);
-          break;
-        case 'Google':
-          // Gemini SentencePiece is very efficient
-          textTokens = Math.ceil(words * currentTokenizer.avgTokensPerWord * 0.85);
-          break;
-        case 'xAI':
-          // Grok tends to use more tokens
-          textTokens = Math.ceil(words * currentTokenizer.avgTokensPerWord * 1.05);
-          break;
-        default:
-          textTokens = Math.ceil(words * currentTokenizer.avgTokensPerWord);
+      if (currentTokenizer.provider === "OpenAI" && o200kEncoder) {
+        // Use tiktoken for OpenAI models
+        try {
+          textTokens = o200kEncoder.encode(text).length;
+        } catch (error) {
+          console.error("Error encoding text with tiktoken:", error);
+          // Fallback to heuristic if tiktoken fails for some reason during encoding
+          textTokens = Math.ceil(
+            words * currentTokenizer.avgTokensPerWord * 0.95
+          );
+        }
+      } else {
+        // Improved heuristic for other providers
+        const baseTokens = words * currentTokenizer.avgTokensPerWord;
+        const charAdjustment = characters / currentTokenizer.avgCharsPerToken;
+        let multiplier = 1;
+        switch (currentTokenizer.provider) {
+          case "Anthropic":
+            multiplier = 0.9;
+            break;
+          case "Google":
+            multiplier = 0.85;
+            break;
+          case "xAI":
+            multiplier = 1.05;
+            break;
+        }
+        textTokens = Math.ceil(
+          (baseTokens * 0.7 + charAdjustment * 0.3) * multiplier
+        );
       }
-      
-      // Character-based fallback for very short or non-standard text
-      const charBasedTokens = Math.ceil(characters / currentTokenizer.avgCharsPerToken);
-      textTokens = Math.max(textTokens, charBasedTokens);
+
+      // Character-based fallback for very short or non-standard text (applies if not OpenAI or if tiktoken failed)
+      if (currentTokenizer.provider !== "OpenAI") {
+        // Or if tiktoken failed, this path is taken.
+        const charBasedTokens = Math.ceil(
+          characters / currentTokenizer.avgCharsPerToken
+        );
+        textTokens = Math.max(textTokens, charBasedTokens);
+      }
     }
-    
+
     // Multimodal token calculations
     let imageTokens = 0;
     let videoTokens = 0;
     let audioTokens = 0;
-    
-    if (currentTokenizer.imageTokens && multimodalContent.imageCount > 0) {
-      const tokensPerImage = multimodalContent.imageSizeCategory === 'small' 
-        ? currentTokenizer.imageTokens.small 
-        : currentTokenizer.imageTokens.large;
-      imageTokens = multimodalContent.imageCount * tokensPerImage;
+
+    if (multimodalContent.imageCount > 0 && currentTokenizer) {
+      if (
+        currentTokenizer.provider === "Anthropic" &&
+        currentTokenizer.imageTokenizationMode === "formula"
+      ) {
+        if (
+          multimodalContent.imageWidth > 0 &&
+          multimodalContent.imageHeight > 0
+        ) {
+          imageTokens =
+            Math.ceil(
+              (multimodalContent.imageWidth * multimodalContent.imageHeight) /
+                750
+            ) * multimodalContent.imageCount;
+        }
+      } else if (currentTokenizer.imageTokens) {
+        const tokensPerImage =
+          multimodalContent.imageSizeCategory === "small"
+            ? currentTokenizer.imageTokens.small
+            : currentTokenizer.imageTokens.large *
+              (currentTokenizer.provider === "xAI"
+                ? 1792 / currentTokenizer.imageTokens.large
+                : 1);
+        imageTokens = multimodalContent.imageCount * tokensPerImage;
+      }
     }
-    
-    if (currentTokenizer.videoTokensPerSecond && multimodalContent.videoDurationSeconds > 0) {
-      videoTokens = multimodalContent.videoDurationSeconds * currentTokenizer.videoTokensPerSecond;
+
+    if (
+      currentTokenizer.videoTokensPerSecond &&
+      multimodalContent.videoDurationSeconds > 0
+    ) {
+      videoTokens =
+        multimodalContent.videoDurationSeconds *
+        currentTokenizer.videoTokensPerSecond;
     }
-    
-    if (currentTokenizer.audioTokensPerSecond && multimodalContent.audioDurationSeconds > 0) {
-      audioTokens = multimodalContent.audioDurationSeconds * currentTokenizer.audioTokensPerSecond;
+
+    if (
+      currentTokenizer.audioTokensPerSecond &&
+      multimodalContent.audioDurationSeconds > 0
+    ) {
+      audioTokens =
+        multimodalContent.audioDurationSeconds *
+        currentTokenizer.audioTokensPerSecond;
     }
-    
-    const estimatedTokens = textTokens + imageTokens + videoTokens + audioTokens;
-    const contextUsagePercent = ((estimatedTokens / currentTokenizer.contextWindow) * 100).toFixed(1);
-    
+
+    const estimatedTokens =
+      textTokens + imageTokens + videoTokens + audioTokens;
+    const contextUsagePercent = (
+      (estimatedTokens / currentTokenizer.contextWindow) *
+      100
+    ).toFixed(1);
+
     // Cost estimation
-    const estimatedCost = currentTokenizer.costPer1kTokens 
-      ? (estimatedTokens / 1000) * currentTokenizer.costPer1kTokens.input
-      : 0;
-    
+    let estimatedCost = 0;
+    if (currentTokenizer.costPer1kTokens) {
+      const inputCost =
+        (estimatedTokens / 1000) * currentTokenizer.costPer1kTokens.input;
+      const outputTokensEstimate = Math.ceil(
+        expectedOutputWords * currentTokenizer.avgTokensPerWord
+      );
+      const outputCost =
+        (outputTokensEstimate / 1000) * currentTokenizer.costPer1kTokens.output;
+      estimatedCost = inputCost + outputCost;
+    }
+
     return {
       characters,
       words,
       sentences,
       paragraphs,
       estimatedTokens,
-      tokenDensity: words > 0 ? (textTokens / words).toFixed(2) : '0',
+      tokenDensity: words > 0 ? (textTokens / words).toFixed(2) : "0",
       breakdown: {
         textTokens,
         imageTokens,
         videoTokens,
-        audioTokens
+        audioTokens,
       },
       contextUsagePercent,
-      estimatedCost
+      estimatedCost,
     };
-  }, [text, currentTokenizer, multimodalContent]);
+  }, [text, currentTokenizer, multimodalContent, expectedOutputWords]);
 
   const saveAnalysis = () => {
-    if (!text.trim() && !multimodalContent.imageCount && !multimodalContent.videoDurationSeconds && !multimodalContent.audioDurationSeconds) return;
-    
+    if (
+      !text.trim() &&
+      !multimodalContent.imageCount &&
+      !multimodalContent.videoDurationSeconds &&
+      !multimodalContent.audioDurationSeconds
+    )
+      return;
+
     const analysis = {
       id: Date.now(),
-      text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+      text: text.substring(0, 100) + (text.length > 100 ? "..." : ""),
       tokenizer: selectedTokenizer,
       multimodal: multimodalContent,
       ...metrics,
-      timestamp: new Date().toLocaleString()
+      timestamp: new Date().toLocaleString(),
     };
-    
-    setAnalysisHistory(prev => [analysis, ...prev.slice(0, 9)]);
+
+    setAnalysisHistory((prev) => [analysis, ...prev.slice(0, 9)]);
   };
 
   const getProviderColor = (provider: string) => {
     switch (provider) {
-      case 'OpenAI': return 'bg-green-100 text-green-800';
-      case 'Anthropic': return 'bg-orange-100 text-orange-800';
-      case 'Google': return 'bg-blue-100 text-blue-800';
-      case 'xAI': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "OpenAI":
+        return "bg-green-100 text-green-800";
+      case "Anthropic":
+        return "bg-orange-100 text-orange-800";
+      case "Google":
+        return "bg-blue-100 text-blue-800";
+      case "xAI":
+        return "bg-purple-100 text-purple-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getContextUsageColor = (usage: string) => {
     const percent = parseFloat(usage);
-    if (percent < 50) return 'text-green-600';
-    if (percent < 80) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percent < 50) return "text-green-600";
+    if (percent < 80) return "text-yellow-600";
+    return "text-red-600";
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type === 'text/plain') {
+    if (file && file.type === "text/plain") {
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
@@ -240,12 +397,14 @@ const TokenCalculator = () => {
       tokenizer: selectedTokenizer,
       multimodal: multimodalContent,
       analysis: metrics,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `token-analysis-${Date.now()}.json`;
     a.click();
@@ -257,8 +416,17 @@ const TokenCalculator = () => {
     "The quick brown fox jumps over the lazy dog.",
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     "Write a Python function to calculate the Fibonacci sequence up to n terms.",
-    "Explain quantum computing in simple terms that a high school student would understand."
+    "Explain quantum computing in simple terms that a high school student would understand.",
   ];
+
+  // Effect to free the encoder when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (o200kEncoder && typeof o200kEncoder.free === "function") {
+        o200kEncoder.free();
+      }
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -271,14 +439,18 @@ const TokenCalculator = () => {
               Enhanced Token Calculator
             </CardTitle>
             <CardDescription>
-              Provider-specific tokenization with multimodal support and cost estimation
+              Provider-specific tokenization with multimodal support and cost
+              estimation
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Tokenizer Selection */}
             <div className="space-y-2">
               <Label htmlFor="tokenizer">AI Model / Tokenizer</Label>
-              <Select value={selectedTokenizer} onValueChange={setSelectedTokenizer}>
+              <Select
+                value={selectedTokenizer}
+                onValueChange={setSelectedTokenizer}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -288,7 +460,9 @@ const TokenCalculator = () => {
                       <div className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-2">
                           <span>{tokenizer.name}</span>
-                          <Badge className={getProviderColor(tokenizer.provider)}>
+                          <Badge
+                            className={getProviderColor(tokenizer.provider)}
+                          >
                             {tokenizer.provider}
                           </Badge>
                         </div>
@@ -297,28 +471,49 @@ const TokenCalculator = () => {
                   ))}
                 </SelectContent>
               </Select>
-              
+
               {/* Enhanced Tokenizer Info */}
               {currentTokenizer && (
                 <div className="text-xs text-gray-600 space-y-1 p-3 bg-gray-50 rounded-lg">
-                  <p><strong>Description:</strong> {currentTokenizer.description}</p>
-                  <p><strong>Type:</strong> {currentTokenizer.tokenizerType}</p>
+                  <p>
+                    <strong>Description:</strong> {currentTokenizer.description}
+                  </p>
+                  <p>
+                    <strong>Type:</strong> {currentTokenizer.tokenizerType}
+                  </p>
                   <div className="grid grid-cols-2 gap-4">
-                    <p><strong>Context:</strong> {currentTokenizer.contextWindow.toLocaleString()} tokens</p>
-                    <p><strong>Output:</strong> {currentTokenizer.outputLimit.toLocaleString()} tokens</p>
+                    <p>
+                      <strong>Context:</strong>{" "}
+                      {currentTokenizer.contextWindow.toLocaleString()} tokens
+                    </p>
+                    <p>
+                      <strong>Output:</strong>{" "}
+                      {currentTokenizer.outputLimit.toLocaleString()} tokens
+                    </p>
                   </div>
                   {currentTokenizer.costPer1kTokens && (
-                    <p><strong>Cost:</strong> ${currentTokenizer.costPer1kTokens.input}/1k input, ${currentTokenizer.costPer1kTokens.output}/1k output</p>
+                    <p>
+                      <strong>Cost:</strong> $
+                      {currentTokenizer.costPer1kTokens.input}/1k input, $
+                      {currentTokenizer.costPer1kTokens.output}/1k output
+                    </p>
                   )}
                   <div className="flex gap-2 mt-2">
                     {currentTokenizer.imageTokens && (
-                      <Badge variant="outline">Images: {currentTokenizer.imageTokens.small}-{currentTokenizer.imageTokens.large} tokens</Badge>
+                      <Badge variant="outline">
+                        Images: {currentTokenizer.imageTokens.small}-
+                        {currentTokenizer.imageTokens.large} tokens
+                      </Badge>
                     )}
                     {currentTokenizer.videoTokensPerSecond ? (
-                      <Badge variant="outline">Video: {currentTokenizer.videoTokensPerSecond}/sec</Badge>
+                      <Badge variant="outline">
+                        Video: {currentTokenizer.videoTokensPerSecond}/sec
+                      </Badge>
                     ) : null}
                     {currentTokenizer.audioTokensPerSecond ? (
-                      <Badge variant="outline">Audio: {currentTokenizer.audioTokensPerSecond}/sec</Badge>
+                      <Badge variant="outline">
+                        Audio: {currentTokenizer.audioTokensPerSecond}/sec
+                      </Badge>
                     ) : null}
                   </div>
                 </div>
@@ -332,22 +527,64 @@ const TokenCalculator = () => {
                   <Image className="w-4 h-4" />
                   Images
                 </Label>
-                <div className="space-y-2">
-                  <Input
-                    type="number"
-                    min="0"
-                    placeholder="Count"
-                    value={multimodalContent.imageCount || ''}
-                    onChange={(e) => setMultimodalContent(prev => ({ 
-                      ...prev, 
-                      imageCount: parseInt(e.target.value) || 0 
-                    }))}
-                    disabled={!currentTokenizer?.imageTokens}
-                  />
-                  <Select 
-                    value={multimodalContent.imageSizeCategory} 
-                    onValueChange={(value: 'small' | 'large') => 
-                      setMultimodalContent(prev => ({ ...prev, imageSizeCategory: value }))
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Count"
+                  value={multimodalContent.imageCount || ""}
+                  onChange={(e) =>
+                    setMultimodalContent((prev) => ({
+                      ...prev,
+                      imageCount: parseInt(e.target.value) || 0,
+                    }))
+                  }
+                  // Disabled if Anthropic has 0 width/height, or other providers have no imageToken support
+                  disabled={
+                    currentTokenizer?.provider === "Anthropic"
+                      ? multimodalContent.imageWidth === 0 ||
+                        multimodalContent.imageHeight === 0
+                      : !currentTokenizer?.imageTokens
+                  }
+                />
+                {currentTokenizer?.provider === "Anthropic" &&
+                currentTokenizer.imageTokenizationMode === "formula" ? (
+                  <div className="space-y-2 mt-2">
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Width (px)"
+                      value={multimodalContent.imageWidth || ""}
+                      onChange={(e) =>
+                        setMultimodalContent((prev) => ({
+                          ...prev,
+                          imageWidth: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                    />
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Height (px)"
+                      value={multimodalContent.imageHeight || ""}
+                      onChange={(e) =>
+                        setMultimodalContent((prev) => ({
+                          ...prev,
+                          imageHeight: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                    />
+                    <p className="text-xs text-gray-500">
+                      Min 200px edge. Tokens: (W*H)/750 per image.
+                    </p>
+                  </div>
+                ) : currentTokenizer?.imageTokens ? (
+                  <Select
+                    value={multimodalContent.imageSizeCategory}
+                    onValueChange={(value: "small" | "large") =>
+                      setMultimodalContent((prev) => ({
+                        ...prev,
+                        imageSizeCategory: value,
+                      }))
                     }
                     disabled={!currentTokenizer?.imageTokens}
                   >
@@ -356,12 +593,16 @@ const TokenCalculator = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="small">Small (≤384px)</SelectItem>
-                      <SelectItem value="large">Large ({'>'}384px)</SelectItem>
+                      <SelectItem value="large">Large ({">"}384px)</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                ) : (
+                  <p className="text-xs text-gray-500">
+                    Image sizing not applicable or supported.
+                  </p>
+                )}
               </div>
-              
+
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Video className="w-4 h-4" />
@@ -371,18 +612,20 @@ const TokenCalculator = () => {
                   type="number"
                   min="0"
                   placeholder="Duration"
-                  value={multimodalContent.videoDurationSeconds || ''}
-                  onChange={(e) => setMultimodalContent(prev => ({ 
-                    ...prev, 
-                    videoDurationSeconds: parseInt(e.target.value) || 0 
-                  }))}
+                  value={multimodalContent.videoDurationSeconds || ""}
+                  onChange={(e) =>
+                    setMultimodalContent((prev) => ({
+                      ...prev,
+                      videoDurationSeconds: parseInt(e.target.value) || 0,
+                    }))
+                  }
                   disabled={!currentTokenizer?.videoTokensPerSecond}
                 />
                 {!currentTokenizer?.videoTokensPerSecond && (
                   <p className="text-xs text-gray-500">Not supported</p>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <AudioLines className="w-4 h-4" />
@@ -392,11 +635,13 @@ const TokenCalculator = () => {
                   type="number"
                   min="0"
                   placeholder="Duration"
-                  value={multimodalContent.audioDurationSeconds || ''}
-                  onChange={(e) => setMultimodalContent(prev => ({ 
-                    ...prev, 
-                    audioDurationSeconds: parseInt(e.target.value) || 0 
-                  }))}
+                  value={multimodalContent.audioDurationSeconds || ""}
+                  onChange={(e) =>
+                    setMultimodalContent((prev) => ({
+                      ...prev,
+                      audioDurationSeconds: parseInt(e.target.value) || 0,
+                    }))
+                  }
                   disabled={!currentTokenizer?.audioTokensPerSecond}
                 />
                 {!currentTokenizer?.audioTokensPerSecond && (
@@ -420,15 +665,17 @@ const TokenCalculator = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => document.getElementById('file-upload')?.click()}
+                    onClick={() =>
+                      document.getElementById("file-upload")?.click()
+                    }
                   >
                     <Upload className="w-4 h-4 mr-1" />
                     Upload
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={exportAnalysis} 
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportAnalysis}
                     disabled={!text.trim() && !multimodalContent.imageCount}
                   >
                     <Download className="w-4 h-4 mr-1" />
@@ -457,15 +704,17 @@ const TokenCalculator = () => {
                     className="text-left justify-start text-xs h-auto p-2 max-w-48"
                     onClick={() => setText(example)}
                   >
-                    {example.length > 40 ? example.substring(0, 40) + '...' : example}
+                    {example.length > 40
+                      ? example.substring(0, 40) + "..."
+                      : example}
                   </Button>
                 ))}
               </div>
             </div>
 
-            <Button 
-              onClick={saveAnalysis} 
-              disabled={!text.trim() && !multimodalContent.imageCount} 
+            <Button
+              onClick={saveAnalysis}
+              disabled={!text.trim() && !multimodalContent.imageCount}
               className="w-full"
             >
               <FileText className="w-4 h-4 mr-2" />
@@ -485,56 +734,113 @@ const TokenCalculator = () => {
           <CardContent className="space-y-6">
             {/* Main Token Count */}
             <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border">
-              <div className="text-3xl font-bold text-blue-600">{metrics.estimatedTokens.toLocaleString()}</div>
+              <div className="text-3xl font-bold text-blue-600">
+                {metrics.estimatedTokens.toLocaleString()}
+              </div>
               <div className="text-sm text-blue-700">Total Tokens</div>
               {currentTokenizer && (
-                <div className={`text-xs mt-1 font-medium ${getContextUsageColor(metrics.contextUsagePercent)}`}>
+                <div
+                  className={`text-xs mt-1 font-medium ${getContextUsageColor(
+                    metrics.contextUsagePercent
+                  )}`}
+                >
                   {metrics.contextUsagePercent}% of context window
                 </div>
               )}
-              {currentTokenizer && parseFloat(metrics.contextUsagePercent) > 90 && (
-                <div className="flex items-center justify-center gap-1 mt-1">
-                  <AlertCircle className="w-3 h-3 text-red-500" />
-                  <span className="text-xs text-red-600">Near context limit</span>
-                </div>
-              )}
+              {currentTokenizer &&
+                parseFloat(metrics.contextUsagePercent) > 90 && (
+                  <div className="flex items-center justify-center gap-1 mt-1">
+                    <AlertCircle className="w-3 h-3 text-red-500" />
+                    <span className="text-xs text-red-600">
+                      Near context limit
+                    </span>
+                  </div>
+                )}
             </div>
 
             {/* Cost Estimation */}
-            {currentTokenizer?.costPer1kTokens && metrics.estimatedTokens > 0 && (
-              <div className="text-center p-3 bg-green-50 rounded-lg border">
-                <div className="text-lg font-semibold text-green-700">
-                  ${metrics.estimatedCost.toFixed(4)}
+            {currentTokenizer?.costPer1kTokens &&
+              (metrics.estimatedTokens > 0 || expectedOutputWords > 0) && (
+                <div className="text-center p-3 bg-green-50 rounded-lg border">
+                  <div className="text-lg font-semibold text-green-700">
+                    ${metrics.estimatedCost.toFixed(4)}
+                  </div>
+                  <div className="text-xs text-green-600">
+                    Estimated total cost (input + output)
+                  </div>
                 </div>
-                <div className="text-xs text-green-600">Estimated input cost</div>
-              </div>
-            )}
+              )}
+
+            {/* Expected Output Input */}
+            {currentTokenizer?.costPer1kTokens &&
+              currentTokenizer.costPer1kTokens.output > 0 && (
+                <div className="space-y-2 p-3 bg-gray-50 rounded-lg">
+                  <Label
+                    htmlFor="expected-output-words"
+                    className="text-sm font-medium flex items-center gap-1"
+                  >
+                    <Calculator className="w-4 h-4 text-gray-600" />
+                    Expected Output Words (for cost calc)
+                  </Label>
+                  <Input
+                    id="expected-output-words"
+                    type="number"
+                    min="0"
+                    placeholder="e.g., 500"
+                    value={expectedOutputWords || ""}
+                    onChange={(e) =>
+                      setExpectedOutputWords(parseInt(e.target.value) || 0)
+                    }
+                  />
+                  {expectedOutputWords > 0 &&
+                    currentTokenizer.avgTokensPerWord && (
+                      <p className="text-xs text-gray-500">
+                        Estimating approx.{" "}
+                        {Math.ceil(
+                          expectedOutputWords *
+                            currentTokenizer.avgTokensPerWord
+                        )}{" "}
+                        output tokens.
+                      </p>
+                    )}
+                </div>
+              )}
 
             {/* Token Breakdown */}
-            {(metrics.breakdown.imageTokens > 0 || metrics.breakdown.videoTokens > 0 || metrics.breakdown.audioTokens > 0) && (
+            {(metrics.breakdown.imageTokens > 0 ||
+              metrics.breakdown.videoTokens > 0 ||
+              metrics.breakdown.audioTokens > 0) && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Token Breakdown</Label>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
                     <span>Text:</span>
-                    <span className="font-medium">{metrics.breakdown.textTokens.toLocaleString()}</span>
+                    <span className="font-medium">
+                      {metrics.breakdown.textTokens.toLocaleString()}
+                    </span>
                   </div>
                   {metrics.breakdown.imageTokens > 0 && (
                     <div className="flex justify-between">
                       <span>Images:</span>
-                      <span className="font-medium">{metrics.breakdown.imageTokens.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {metrics.breakdown.imageTokens.toLocaleString()}
+                      </span>
                     </div>
                   )}
                   {metrics.breakdown.videoTokens > 0 && (
                     <div className="flex justify-between">
                       <span>Video:</span>
-                      <span className="font-medium">{metrics.breakdown.videoTokens.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {metrics.breakdown.videoTokens.toLocaleString()}
+                      </span>
                     </div>
                   )}
                   {metrics.breakdown.audioTokens > 0 && (
                     <div className="flex justify-between">
                       <span>Audio:</span>
-                      <span className="font-medium">{metrics.breakdown.audioTokens.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {metrics.breakdown.audioTokens.toLocaleString()}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -544,26 +850,36 @@ const TokenCalculator = () => {
             {/* Basic Metrics Grid */}
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-xl font-semibold">{metrics.characters.toLocaleString()}</div>
+                <div className="text-xl font-semibold">
+                  {metrics.characters.toLocaleString()}
+                </div>
                 <div className="text-xs text-gray-600">Characters</div>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-xl font-semibold">{metrics.words.toLocaleString()}</div>
+                <div className="text-xl font-semibold">
+                  {metrics.words.toLocaleString()}
+                </div>
                 <div className="text-xs text-gray-600">Words</div>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-xl font-semibold">{metrics.sentences.toLocaleString()}</div>
+                <div className="text-xl font-semibold">
+                  {metrics.sentences.toLocaleString()}
+                </div>
                 <div className="text-xs text-gray-600">Sentences</div>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-xl font-semibold">{metrics.paragraphs.toLocaleString()}</div>
+                <div className="text-xl font-semibold">
+                  {metrics.paragraphs.toLocaleString()}
+                </div>
                 <div className="text-xs text-gray-600">Paragraphs</div>
               </div>
             </div>
 
             {/* Token Density */}
             <div className="text-center p-3 bg-indigo-50 rounded-lg">
-              <div className="text-lg font-semibold text-indigo-700">{metrics.tokenDensity}</div>
+              <div className="text-lg font-semibold text-indigo-700">
+                {metrics.tokenDensity}
+              </div>
               <div className="text-xs text-indigo-600">Tokens per Word</div>
             </div>
           </CardContent>
@@ -588,12 +904,23 @@ const TokenCalculator = () => {
           ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {analysisHistory.map((analysis) => (
-                <div key={analysis.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div
+                  key={analysis.id}
+                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
-                      <p className="text-sm text-gray-600 mb-1">"{analysis.text}"</p>
+                      <p className="text-sm text-gray-600 mb-1">
+                        "{analysis.text}"
+                      </p>
                       <div className="flex gap-1 flex-wrap">
-                        <Badge className={getProviderColor(tokenizers.find(t => t.name === analysis.tokenizer)?.provider || '')}>
+                        <Badge
+                          className={getProviderColor(
+                            tokenizers.find(
+                              (t) => t.name === analysis.tokenizer
+                            )?.provider || ""
+                          )}
+                        >
                           {analysis.tokenizer}
                         </Badge>
                         {analysis.multimodal?.imageCount > 0 && (
@@ -614,10 +941,14 @@ const TokenCalculator = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-blue-600">{analysis.estimatedTokens.toLocaleString()}</div>
+                      <div className="text-lg font-bold text-blue-600">
+                        {analysis.estimatedTokens.toLocaleString()}
+                      </div>
                       <div className="text-xs text-gray-500">tokens</div>
                       {analysis.estimatedCost > 0 && (
-                        <div className="text-xs text-green-600">${analysis.estimatedCost.toFixed(4)}</div>
+                        <div className="text-xs text-green-600">
+                          ${analysis.estimatedCost.toFixed(4)}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -627,7 +958,9 @@ const TokenCalculator = () => {
                     <div>{analysis.sentences} sentences</div>
                     <div>{analysis.tokenDensity} t/w ratio</div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-2">{analysis.timestamp}</div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    {analysis.timestamp}
+                  </div>
                 </div>
               ))}
             </div>
