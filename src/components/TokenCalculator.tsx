@@ -392,12 +392,12 @@ const TokenCalculator = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Text Input and Controls */}
-        <Card className="lg:col-span-2">
+        <Card className="xl:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Hash className="w-5 h-5" />
               Enhanced Token Calculator
             </CardTitle>
@@ -419,17 +419,22 @@ const TokenCalculator = () => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={isTokenizerSelectOpen}
-                    className="w-full justify-between"
+                    className="w-full justify-between h-auto min-h-[44px] text-left"
                   >
-                    {selectedTokenizer
-                      ? tokenizers.find(
-                          (tokenizer) => tokenizer.name === selectedTokenizer
-                        )?.name
-                      : "Choose a tokenizer..."}
+                    <span className="truncate">
+                      {selectedTokenizer
+                        ? tokenizers.find(
+                            (tokenizer) => tokenizer.name === selectedTokenizer
+                          )?.name
+                        : "Choose a tokenizer..."}
+                    </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
+                <PopoverContent
+                  className="w-[var(--radix-popover-trigger-width)] max-w-[90vw] p-0"
+                  align="start"
+                >
                   <Command>
                     <CommandInput placeholder="Search tokenizers by name, provider, or description..." />
                     <CommandList>
@@ -446,16 +451,18 @@ const TokenCalculator = () => {
                           >
                             <Check
                               className={cn(
-                                "mr-2 h-4 w-4",
+                                "mr-2 h-4 w-4 flex-shrink-0",
                                 selectedTokenizer === tokenizer.name
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}
                             />
-                            <div className="flex items-center justify-between w-full">
-                              <span>{tokenizer.name}</span>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-1 sm:gap-2">
+                              <span className="truncate">{tokenizer.name}</span>
                               <Badge
-                                className={getProviderColor(tokenizer.provider)}
+                                className={`self-start sm:self-auto text-xs ${getProviderColor(
+                                  tokenizer.provider
+                                )}`}
                               >
                                 {tokenizer.provider}
                               </Badge>
@@ -478,7 +485,7 @@ const TokenCalculator = () => {
                 <p>
                   <strong>Type:</strong> {currentTokenizer.tokenizerType}
                 </p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                   <p>
                     <strong>Context:</strong>{" "}
                     {currentTokenizer.contextWindow.toLocaleString()} tokens
@@ -506,20 +513,20 @@ const TokenCalculator = () => {
                     /1M output
                   </p>
                 )}
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-1 sm:gap-2 mt-2">
                   {currentTokenizer.imageTokens && (
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="text-xs">
                       Images: {currentTokenizer.imageTokens.small}-
                       {currentTokenizer.imageTokens.large} tokens
                     </Badge>
                   )}
                   {currentTokenizer.videoTokensPerSecond ? (
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="text-xs">
                       Video: {currentTokenizer.videoTokensPerSecond}/sec
                     </Badge>
                   ) : null}
                   {currentTokenizer.audioTokensPerSecond ? (
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="text-xs">
                       Audio: {currentTokenizer.audioTokensPerSecond}/sec
                     </Badge>
                   ) : null}
@@ -528,7 +535,7 @@ const TokenCalculator = () => {
             )}
 
             {/* Multimodal Content Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Image className="w-4 h-4" />
@@ -545,6 +552,7 @@ const TokenCalculator = () => {
                       imageCount: parseInt(e.target.value) || 0,
                     }))
                   }
+                  className="h-11"
                   // Disabled if Anthropic has 0 width/height, or other providers have no imageToken support
                   disabled={
                     currentTokenizer?.provider === "Anthropic"
@@ -567,6 +575,7 @@ const TokenCalculator = () => {
                           imageWidth: parseInt(e.target.value) || 0,
                         }))
                       }
+                      className="h-11"
                     />
                     <Input
                       type="number"
@@ -579,12 +588,10 @@ const TokenCalculator = () => {
                           imageHeight: parseInt(e.target.value) || 0,
                         }))
                       }
+                      className="h-11"
                     />
-                    <p className="text-xs text-gray-500">
-                      Min 200px edge. Tokens: (W*H)/750 per image.
-                    </p>
                   </div>
-                ) : currentTokenizer?.imageTokens ? (
+                ) : currentTokenizer?.provider === "OpenAI" ? (
                   <Select
                     value={multimodalContent.imageSizeCategory}
                     onValueChange={(value: "small" | "large") =>

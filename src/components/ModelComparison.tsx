@@ -145,11 +145,11 @@ const ModelComparison = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Model Selection */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <GitCompare className="w-5 h-5" />
             Model Selection
           </CardTitle>
@@ -167,7 +167,7 @@ const ModelComparison = () => {
                   placeholder="Search models by name, provider, category, parameters, or license..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 h-11"
                 />
                 {searchTerm && (
                   <Button
@@ -189,76 +189,89 @@ const ModelComparison = () => {
             </div>
 
             {/* Category and Provider Filters */}
-            <div className="flex flex-wrap gap-2">
-              <span className="text-sm font-medium mr-2 self-center">
-                Category:
-              </span>
-              <Button
-                variant={filterCategory === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterCategory("all")}
-              >
-                All Models
-              </Button>
-              <Button
-                variant={filterCategory === "flagship" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterCategory("flagship")}
-              >
-                Flagship
-              </Button>
-              <Button
-                variant={filterCategory === "efficient" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterCategory("efficient")}
-              >
-                Efficient
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="text-sm font-medium mr-2 self-center">
-                Provider:
-              </span>
-              {allProviders.map((provider) => (
-                <Button
-                  key={provider}
-                  variant={
-                    filterProviders.includes(
-                      provider.toLowerCase() === "all" ? "all" : provider
-                    )
-                      ? "default"
-                      : "outline"
-                  }
-                  size="sm"
-                  onClick={() => {
-                    if (provider === "All") {
-                      setFilterProviders(["all"]);
-                    } else {
-                      setFilterProviders((prev) => {
-                        const newProviders = prev.includes("all")
-                          ? []
-                          : [...prev];
-                        if (newProviders.includes(provider)) {
-                          return newProviders.filter((p) => p !== provider)
-                            .length === 0
-                            ? ["all"]
-                            : newProviders.filter((p) => p !== provider);
-                        } else {
-                          return [...newProviders, provider];
-                        }
-                      });
+            <div className="space-y-4">
+              {/* Category Filter */}
+              <div className="space-y-2">
+                <span className="text-sm font-medium">Category:</span>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={filterCategory === "all" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFilterCategory("all")}
+                    className="h-9"
+                  >
+                    All Models
+                  </Button>
+                  <Button
+                    variant={
+                      filterCategory === "flagship" ? "default" : "outline"
                     }
-                  }}
-                >
-                  {provider}
-                </Button>
-              ))}
+                    size="sm"
+                    onClick={() => setFilterCategory("flagship")}
+                    className="h-9"
+                  >
+                    Flagship
+                  </Button>
+                  <Button
+                    variant={
+                      filterCategory === "efficient" ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => setFilterCategory("efficient")}
+                    className="h-9"
+                  >
+                    Efficient
+                  </Button>
+                </div>
+              </div>
+
+              {/* Provider Filter */}
+              <div className="space-y-2">
+                <span className="text-sm font-medium">Provider:</span>
+                <div className="flex flex-wrap gap-2">
+                  {allProviders.map((provider) => (
+                    <Button
+                      key={provider}
+                      variant={
+                        filterProviders.includes(
+                          provider.toLowerCase() === "all" ? "all" : provider
+                        )
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      onClick={() => {
+                        if (provider === "All") {
+                          setFilterProviders(["all"]);
+                        } else {
+                          setFilterProviders((prev) => {
+                            const newProviders = prev.includes("all")
+                              ? []
+                              : [...prev];
+                            if (newProviders.includes(provider)) {
+                              return newProviders.filter((p) => p !== provider)
+                                .length === 0
+                                ? ["all"]
+                                : newProviders.filter((p) => p !== provider);
+                            } else {
+                              return [...newProviders, provider];
+                            }
+                          });
+                        }
+                      }}
+                      className="h-9"
+                    >
+                      {provider}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredModels.length === 0 ? (
-              <div className="col-span-2 text-center py-8 text-gray-500">
+              <div className="col-span-full text-center py-8 text-gray-500">
                 <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 <p>No models found</p>
                 <p className="text-sm">
@@ -271,33 +284,44 @@ const ModelComparison = () => {
               filteredModels.map((model) => (
                 <div
                   key={model.name}
-                  className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                  className={`border rounded-lg p-3 cursor-pointer transition-all touch-manipulation ${
                     selectedModels.includes(model.name)
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                   onClick={() => toggleModelSelection(model.name)}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-start gap-3">
                     <Checkbox
                       checked={selectedModels.includes(model.name)}
                       onChange={() => {}}
+                      className="mt-1 flex-shrink-0"
                     />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-semibold">{model.name}</h4>
-                        <div className="flex gap-1">
-                          <Badge className={getProviderColor(model.provider)}>
-                            {model.provider}
-                          </Badge>
-                          <Badge className={getCategoryColor(model.category)}>
-                            {model.category}
-                          </Badge>
+                    <div className="flex-1 min-w-0">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold truncate">{model.name}</h4>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-wrap gap-1">
+                            <Badge
+                              className={`text-xs ${getProviderColor(
+                                model.provider
+                              )}`}
+                            >
+                              {model.provider}
+                            </Badge>
+                            <Badge
+                              className={`text-xs ${getCategoryColor(
+                                model.category
+                              )}`}
+                            >
+                              {model.category}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {model.parameters} •{" "}
+                            {model.contextWindow.toLocaleString()} context
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-xs text-gray-600 mt-1">
-                        {model.parameters} •{" "}
-                        {model.contextWindow.toLocaleString()} context
                       </div>
                     </div>
                   </div>
@@ -316,13 +340,16 @@ const ModelComparison = () => {
       {selectedModelData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Detailed Comparison</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">
+              Detailed Comparison
+            </CardTitle>
             <CardDescription>
               Side-by-side comparison of selected models
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            {/* Desktop Table */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
@@ -490,20 +517,140 @@ const ModelComparison = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Comparison Cards */}
+            <div className="lg:hidden space-y-4">
+              {selectedModelData.map((model) => (
+                <div
+                  key={model.name}
+                  className="border rounded-lg p-4 space-y-3"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold">{model.name}</h3>
+                      <Badge
+                        className={`text-xs mt-1 ${getProviderColor(
+                          model.provider
+                        )}`}
+                      >
+                        {model.provider}
+                      </Badge>
+                    </div>
+                    <Badge
+                      className={`text-xs ${getCategoryColor(model.category)}`}
+                    >
+                      {model.category}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <div className="text-gray-600">Parameters</div>
+                      <div className="font-medium">{model.parameters}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Context</div>
+                      <div className="font-medium">
+                        {model.contextWindow.toLocaleString()}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Input (1K)</div>
+                      <div className="font-mono">
+                        ${model.inputCost.toFixed(4)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Output (1K)</div>
+                      <div className="font-mono">
+                        ${model.outputCost.toFixed(4)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Speed</div>
+                      <div
+                        className={`font-semibold ${getScoreColor(
+                          model.speed
+                        )}`}
+                      >
+                        {model.speed}/150
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Reasoning</div>
+                      <div
+                        className={`font-semibold ${getScoreColor(
+                          model.reasoning
+                        )}`}
+                      >
+                        {model.reasoning}/100
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Coding</div>
+                      <div
+                        className={`font-semibold ${getScoreColor(
+                          model.coding
+                        )}`}
+                      >
+                        {model.coding}/100
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-600">Creative</div>
+                      <div
+                        className={`font-semibold ${getScoreColor(
+                          model.creative
+                        )}`}
+                      >
+                        {model.creative}/100
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-3 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Multimodal:</span>
+                      {model.multimodal ? (
+                        <Badge className="bg-green-100 text-green-800 text-xs">
+                          Yes
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs">
+                          No
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Languages:</span>
+                      <span>{model.languages}+</span>
+                    </div>
+                    {model.license && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">License:</span>
+                        <span className="text-xs">{model.license}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
 
       {/* Quick Comparison Cards */}
       {selectedModelData.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {selectedModelData.map((model) => (
             <Card
               key={model.name}
               className="hover:shadow-lg transition-shadow"
             >
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">{model.name}</CardTitle>
+                <CardTitle className="text-base sm:text-lg truncate">
+                  {model.name}
+                </CardTitle>
                 <Badge className={getProviderColor(model.provider)}>
                   {model.provider}
                 </Badge>
@@ -556,16 +703,18 @@ const ModelComparison = () => {
                     {model.contextWindow.toLocaleString()} context •{" "}
                     {model.languages}+ languages
                   </div>
-                  {model.multimodal && (
-                    <Badge variant="outline" className="mt-1">
-                      Multimodal
-                    </Badge>
-                  )}
-                  {model.license && (
-                    <Badge variant="outline" className="mt-1 ml-1 text-xs">
-                      {model.license}
-                    </Badge>
-                  )}
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {model.multimodal && (
+                      <Badge variant="outline" className="text-xs">
+                        Multimodal
+                      </Badge>
+                    )}
+                    {model.license && (
+                      <Badge variant="outline" className="text-xs">
+                        {model.license}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

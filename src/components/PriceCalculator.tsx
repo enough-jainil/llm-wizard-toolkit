@@ -133,12 +133,12 @@ const PriceCalculator = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Calculator Form */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Calculator className="w-5 h-5" />
               Price Calculator
             </CardTitle>
@@ -158,17 +158,22 @@ const PriceCalculator = () => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={isModelSelectOpen}
-                    className="w-full justify-between"
+                    className="w-full justify-between h-auto min-h-[44px] text-left"
                   >
-                    {selectedModel
-                      ? modelPricing.find(
-                          (model) => model.name === selectedModel
-                        )?.name
-                      : "Choose an LLM model..."}
+                    <span className="truncate">
+                      {selectedModel
+                        ? modelPricing.find(
+                            (model) => model.name === selectedModel
+                          )?.name
+                        : "Choose an LLM model..."}
+                    </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
+                <PopoverContent
+                  className="w-[var(--radix-popover-trigger-width)] max-w-[90vw] p-0"
+                  align="start"
+                >
                   <Command>
                     <CommandInput placeholder="Search models by name, provider, or category..." />
                     <CommandList>
@@ -185,16 +190,16 @@ const PriceCalculator = () => {
                           >
                             <Check
                               className={cn(
-                                "mr-2 h-4 w-4",
+                                "mr-2 h-4 w-4 flex-shrink-0",
                                 selectedModel === model.name
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}
                             />
-                            <div className="flex items-center justify-between w-full">
-                              <span>{model.name}</span>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-1 sm:gap-2">
+                              <span className="truncate">{model.name}</span>
                               <Badge
-                                className={`ml-2 ${getProviderColor(
+                                className={`self-start sm:self-auto text-xs ${getProviderColor(
                                   model.provider
                                 )}`}
                               >
@@ -210,7 +215,7 @@ const PriceCalculator = () => {
               </Popover>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="input-tokens">Input Tokens</Label>
                 <Input
@@ -219,6 +224,7 @@ const PriceCalculator = () => {
                   value={inputTokens}
                   onChange={(e) => setInputTokens(e.target.value)}
                   placeholder="1000"
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -229,6 +235,7 @@ const PriceCalculator = () => {
                   value={outputTokens}
                   onChange={(e) => setOutputTokens(e.target.value)}
                   placeholder="500"
+                  className="h-11"
                 />
               </div>
             </div>
@@ -272,7 +279,7 @@ const PriceCalculator = () => {
 
             <Button
               onClick={addCalculation}
-              className="w-full"
+              className="w-full h-11"
               disabled={!currentModel}
             >
               <DollarSign className="w-4 h-4 mr-2" />
@@ -284,7 +291,7 @@ const PriceCalculator = () => {
         {/* Recent Calculations */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <TrendingUp className="w-5 h-5" />
               Recent Calculations
             </CardTitle>
@@ -307,8 +314,10 @@ const PriceCalculator = () => {
                     className="border rounded-lg p-3 hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-semibold text-sm">{calc.model}</h4>
+                      <div className="min-w-0 flex-1 mr-3">
+                        <h4 className="font-semibold text-sm truncate">
+                          {calc.model}
+                        </h4>
                         <Badge
                           className={`text-xs ${getProviderColor(
                             calc.provider
@@ -317,11 +326,11 @@ const PriceCalculator = () => {
                           {calc.provider}
                         </Badge>
                       </div>
-                      <span className="font-mono text-lg font-bold text-green-600">
+                      <span className="font-mono text-lg font-bold text-green-600 flex-shrink-0">
                         ${calc.cost.toFixed(4)}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-600 grid grid-cols-2 gap-2">
+                    <div className="text-xs text-gray-600 grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
                       <span>
                         Input: {calc.inputTokens.toLocaleString()} tokens
                       </span>
@@ -343,13 +352,16 @@ const PriceCalculator = () => {
       {/* Model Pricing Overview */}
       <Card>
         <CardHeader>
-          <CardTitle>Model Pricing Overview</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">
+            Model Pricing Overview
+          </CardTitle>
           <CardDescription>
             Compare pricing across different LLM providers and models
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          {/* Desktop Table */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
@@ -402,6 +414,69 @@ const PriceCalculator = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="lg:hidden space-y-4 max-h-96 overflow-y-auto">
+            {modelPricing.map((model) => (
+              <div key={model.name} className="border rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div className="min-w-0 flex-1 mr-3">
+                    <h3 className="font-semibold text-sm truncate">
+                      {model.name}
+                    </h3>
+                    <Badge
+                      className={`text-xs mt-1 ${getProviderColor(
+                        model.provider
+                      )}`}
+                    >
+                      {model.provider}
+                    </Badge>
+                  </div>
+                  <Badge
+                    variant={
+                      model.category === "flagship" ? "default" : "secondary"
+                    }
+                    className="text-xs"
+                  >
+                    {model.category}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <div className="text-gray-600">Input (1K)</div>
+                    <div className="font-mono">
+                      ${model.inputCost.toFixed(4)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-600">Output (1K)</div>
+                    <div className="font-mono">
+                      ${model.outputCost.toFixed(4)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-600">Input (1M)</div>
+                    <div className="font-mono text-gray-500">
+                      ${(model.inputCost * 1000).toFixed(2)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-600">Output (1M)</div>
+                    <div className="font-mono text-gray-500">
+                      ${(model.outputCost * 1000).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+
+                {model.license && (
+                  <div className="text-xs text-gray-500 border-t pt-2">
+                    License: {model.license}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
