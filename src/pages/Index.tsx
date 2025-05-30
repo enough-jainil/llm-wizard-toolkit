@@ -1,45 +1,60 @@
-
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calculator, Cpu, DollarSign, GitCompare, Brain, Zap } from 'lucide-react';
-import PriceCalculator from '@/components/PriceCalculator';
-import TokenCalculator from '@/components/TokenCalculator';
-import HardwareCalculator from '@/components/HardwareCalculator';
-import ModelComparison from '@/components/ModelComparison';
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Calculator,
+  Cpu,
+  DollarSign,
+  GitCompare,
+  Brain,
+  Zap,
+} from "lucide-react";
+import PriceCalculator from "@/components/PriceCalculator";
+import TokenCalculator from "@/components/TokenCalculator";
+import HardwareCalculator from "@/components/HardwareCalculator";
+import ModelComparison from "@/components/ModelComparison";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState('price');
+  const [activeTab, setActiveTab] = useState("price");
 
   const tools = [
     {
-      id: 'price',
-      title: 'LLM Price Calculator',
-      description: 'Calculate costs for API usage across different LLM providers',
+      id: "price",
+      title: "LLM Price Calculator",
+      description:
+        "Calculate costs for API usage across different LLM providers",
       icon: DollarSign,
-      color: 'text-green-600'
+      color: "text-green-600",
     },
     {
-      id: 'tokens',
-      title: 'Token Calculator',
-      description: 'Count tokens in real-time for accurate pricing and context management',
+      id: "tokens",
+      title: "Token Calculator",
+      description:
+        "Count tokens in real-time for accurate pricing and context management",
       icon: Calculator,
-      color: 'text-blue-600'
+      color: "text-blue-600",
     },
     {
-      id: 'hardware',
-      title: 'Hardware Calculator',
-      description: 'Estimate hardware requirements for running LLMs locally',
+      id: "hardware",
+      title: "Hardware Calculator",
+      description: "Estimate hardware requirements for running LLMs locally",
       icon: Cpu,
-      color: 'text-purple-600'
+      color: "text-purple-600",
     },
     {
-      id: 'compare',
-      title: 'Model Comparison',
-      description: 'Compare different LLMs side-by-side for performance and cost',
+      id: "compare",
+      title: "Model Comparison",
+      description:
+        "Compare different LLMs side-by-side for performance and cost",
       icon: GitCompare,
-      color: 'text-orange-600'
-    }
+      color: "text-orange-600",
+    },
   ];
 
   return (
@@ -51,7 +66,9 @@ const Index = () => {
             <Brain className="w-8 h-8 text-blue-600" />
             <div>
               <h1 className="text-3xl font-bold text-gray-900">LLM Toolkit</h1>
-              <p className="text-gray-600">Complete utility platform for Large Language Models</p>
+              <p className="text-gray-600">
+                Complete utility platform for Large Language Models
+              </p>
             </div>
           </div>
         </div>
@@ -59,7 +76,7 @@ const Index = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -71,7 +88,7 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -83,7 +100,7 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -95,7 +112,7 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -107,25 +124,36 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* Main Calculator Tools */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl">LLM Utility Tools</CardTitle>
             <CardDescription>
-              Choose a tool below to start calculating costs, tokens, or hardware requirements
+              Choose a tool below to start calculating costs, tokens, or
+              hardware requirements
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-4 mb-8">
                 {tools.map((tool) => {
                   const Icon = tool.icon;
                   return (
-                    <TabsTrigger key={tool.id} value={tool.id} className="flex items-center gap-2">
+                    <TabsTrigger
+                      key={tool.id}
+                      value={tool.id}
+                      className="flex items-center gap-2"
+                    >
                       <Icon className={`w-4 h-4 ${tool.color}`} />
-                      <span className="hidden sm:inline">{tool.title.split(' ')[0]}</span>
+                      <span className="hidden sm:inline">
+                        {tool.title.split(" ")[0]}
+                      </span>
                     </TabsTrigger>
                   );
                 })}
@@ -155,8 +183,8 @@ const Index = () => {
           {tools.map((tool) => {
             const Icon = tool.icon;
             return (
-              <Card 
-                key={tool.id} 
+              <Card
+                key={tool.id}
                 className="cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:scale-105"
                 onClick={() => setActiveTab(tool.id)}
               >
