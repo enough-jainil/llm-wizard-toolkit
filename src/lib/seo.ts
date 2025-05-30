@@ -8,7 +8,8 @@ export const SEO_CONFIG = {
     "Professional LLM toolkit with AI model price calculator, token counter, hardware requirements estimator, and comprehensive model comparison. Compare OpenAI GPT, Claude, Gemini, and 100+ LLM models.",
   defaultKeywords:
     "LLM calculator, AI model pricing, token calculator, GPT cost calculator, Claude pricing, Gemini cost, AI model comparison, LLM hardware requirements, language model tools, OpenAI calculator, Anthropic pricing, Google AI costs",
-  twitterHandle: "@llmtoolkit",
+  twitterHandle: "@algogist",
+  githubRepo: "https://github.com/enough-jainil/llm-wizard-toolkit",
   ogImage: "/og-image.jpg",
   themeColor: "#2563eb",
 };
@@ -130,7 +131,8 @@ export const STRUCTURED_DATA = {
     description:
       "Professional platform for Large Language Model calculations, comparisons, and cost optimization",
     sameAs: [
-      `https://twitter.com/${SEO_CONFIG.twitterHandle.replace("@", "")}`,
+      "https://x.com/algogist",
+      "https://github.com/enough-jainil/llm-wizard-toolkit",
     ],
   },
 };
