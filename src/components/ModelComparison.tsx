@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -256,10 +255,10 @@ const ModelComparison = () => {
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold">{model.name}</h4>
                       <div className="flex gap-1">
-                        <Badge className={getProviderColor(model.provider)} size="sm">
+                        <Badge className={getProviderColor(model.provider)}>
                           {model.provider}
                         </Badge>
-                        <Badge className={getCategoryColor(model.category)} size="sm">
+                        <Badge className={getCategoryColor(model.category)}>
                           {model.category}
                         </Badge>
                       </div>
@@ -297,7 +296,7 @@ const ModelComparison = () => {
                     {selectedModelData.map((model) => (
                       <th key={model.name} className="text-center p-3 font-medium min-w-[120px]">
                         <div>{model.name}</div>
-                        <Badge className={getProviderColor(model.provider)} size="sm">
+                        <Badge className={getProviderColor(model.provider)}>
                           {model.provider}
                         </Badge>
                       </th>
@@ -439,7 +438,7 @@ const ModelComparison = () => {
                     {model.contextWindow.toLocaleString()} context • {model.languages}+ languages
                   </div>
                   {model.multimodal && (
-                    <Badge variant="outline" size="sm" className="mt-1">
+                    <Badge variant="outline" className="mt-1">
                       Multimodal
                     </Badge>
                   )}

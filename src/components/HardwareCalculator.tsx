@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -333,7 +332,7 @@ const HardwareCalculator = () => {
                   <div className="text-center">
                     <h4 className="font-semibold">{gpu.name}</h4>
                     <div className="text-lg font-bold text-blue-600 mt-1">{gpu.vram} GB</div>
-                    <Badge className={getTierColor(gpu.tier)} size="sm">
+                    <Badge className={getTierColor(gpu.tier)}>
                       {gpu.tier}
                     </Badge>
                   </div>
