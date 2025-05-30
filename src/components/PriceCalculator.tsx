@@ -14,19 +14,84 @@ interface ModelPricing {
   inputCost: number; // per 1K tokens
   outputCost: number; // per 1K tokens
   category: string;
+  contextWindow?: string;
+  score?: number;
 }
 
 const modelPricing: ModelPricing[] = [
-  { name: 'GPT-4 Turbo', provider: 'OpenAI', inputCost: 0.01, outputCost: 0.03, category: 'flagship' },
-  { name: 'GPT-4', provider: 'OpenAI', inputCost: 0.03, outputCost: 0.06, category: 'flagship' },
-  { name: 'GPT-4 Mini', provider: 'OpenAI', inputCost: 0.00015, outputCost: 0.0006, category: 'efficient' },
-  { name: 'GPT-3.5 Turbo', provider: 'OpenAI', inputCost: 0.0015, outputCost: 0.002, category: 'efficient' },
-  { name: 'Claude 3.5 Sonnet', provider: 'Anthropic', inputCost: 0.003, outputCost: 0.015, category: 'flagship' },
-  { name: 'Claude 3 Opus', provider: 'Anthropic', inputCost: 0.015, outputCost: 0.075, category: 'flagship' },
-  { name: 'Claude 3 Haiku', provider: 'Anthropic', inputCost: 0.00025, outputCost: 0.00125, category: 'efficient' },
-  { name: 'Gemini 1.5 Pro', provider: 'Google', inputCost: 0.0035, outputCost: 0.0105, category: 'flagship' },
-  { name: 'Gemini 1.5 Flash', provider: 'Google', inputCost: 0.000075, outputCost: 0.0003, category: 'efficient' },
-  { name: 'Command R+', provider: 'Cohere', inputCost: 0.003, outputCost: 0.015, category: 'flagship' },
+  // OpenAI Models
+  { name: 'GPT-4o', provider: 'OpenAI', inputCost: 5.0, outputCost: 15.0, category: 'flagship', contextWindow: '128K', score: 100 },
+  { name: 'GPT-4o (2024-08-06)', provider: 'OpenAI', inputCost: 2.5, outputCost: 10.0, category: 'flagship', contextWindow: '128K', score: 100 },
+  { name: 'GPT-4o Mini', provider: 'OpenAI', inputCost: 0.15, outputCost: 0.6, category: 'efficient', contextWindow: '128K', score: 85 },
+  { name: 'GPT-4o (2024-05-13)', provider: 'OpenAI', inputCost: 5.0, outputCost: 15.0, category: 'flagship', contextWindow: '128K', score: 100 },
+  { name: 'GPT-4 Turbo (2024-04-09)', provider: 'OpenAI', inputCost: 10.0, outputCost: 30.0, category: 'flagship', contextWindow: '128K', score: 94 },
+  { name: 'GPT-4', provider: 'OpenAI', inputCost: 30.0, outputCost: 60.0, category: 'flagship', contextWindow: '8K', score: 84 },
+  { name: 'GPT-4-32K', provider: 'OpenAI', inputCost: 60.0, outputCost: 120.0, category: 'flagship', contextWindow: '32K' },
+  { name: 'GPT-3.5 Turbo (0125)', provider: 'OpenAI', inputCost: 0.5, outputCost: 1.5, category: 'efficient', contextWindow: '16K', score: 67 },
+  { name: 'GPT-3.5 Turbo Instruct', provider: 'OpenAI', inputCost: 1.5, outputCost: 2.0, category: 'efficient', contextWindow: '4K', score: 60 },
+  
+  // Anthropic Models
+  { name: 'Claude 3 Opus', provider: 'Anthropic', inputCost: 15.0, outputCost: 75.0, category: 'flagship', contextWindow: '200K', score: 100 },
+  { name: 'Claude 3 Sonnet', provider: 'Anthropic', inputCost: 3.0, outputCost: 15.0, category: 'flagship', contextWindow: '200K', score: 85 },
+  { name: 'Claude 3 Haiku', provider: 'Anthropic', inputCost: 0.25, outputCost: 1.25, category: 'efficient', contextWindow: '200K', score: 78 },
+  { name: 'Claude 2.1', provider: 'Anthropic', inputCost: 8.0, outputCost: 24.0, category: 'flagship', contextWindow: '200K', score: 66 },
+  { name: 'Claude 2.0', provider: 'Anthropic', inputCost: 8.0, outputCost: 24.0, category: 'flagship', contextWindow: '100K', score: 72 },
+  { name: 'Claude Instant 1.2', provider: 'Anthropic', inputCost: 0.8, outputCost: 2.4, category: 'efficient', contextWindow: '100K', score: 65 },
+
+  // Google Models
+  { name: 'Gemini 1.5 Pro', provider: 'Google', inputCost: 3.5, outputCost: 10.5, category: 'flagship', contextWindow: '1M', score: 88 },
+  { name: 'Gemini 1.5 Flash', provider: 'Google', inputCost: 0.075, outputCost: 0.3, category: 'efficient', contextWindow: '2.8M' },
+  { name: 'Gemini Pro', provider: 'Google', inputCost: 0.5, outputCost: 1.5, category: 'efficient', contextWindow: '32K', score: 66 },
+
+  // Meta Llama Models
+  { name: 'Llama 3.1 405B Instruct', provider: 'Fireworks', inputCost: 3.0, outputCost: 3.0, category: 'flagship', contextWindow: '128K', score: 100 },
+  { name: 'Llama 3.1 70B Instruct', provider: 'Deepinfra', inputCost: 0.52, outputCost: 0.75, category: 'flagship', contextWindow: '128K', score: 95 },
+  { name: 'Llama 3.1 8B Instruct', provider: 'Deepinfra', inputCost: 0.09, outputCost: 0.09, category: 'efficient', contextWindow: '128K', score: 66 },
+  { name: 'Llama 3 70B Instruct', provider: 'Deepinfra', inputCost: 0.59, outputCost: 0.79, category: 'flagship', contextWindow: '8K', score: 88 },
+  { name: 'Llama 3 8B Instruct', provider: 'Deepinfra', inputCost: 0.08, outputCost: 0.08, category: 'efficient', contextWindow: '8K', score: 58 },
+
+  // Mistral Models
+  { name: 'Mistral Large', provider: 'Mistral', inputCost: 8.0, outputCost: 24.0, category: 'flagship', contextWindow: '32K', score: 84 },
+  { name: 'Mistral Medium', provider: 'Mistral', inputCost: 2.7, outputCost: 8.1, category: 'flagship', contextWindow: '32K', score: 76 },
+  { name: 'Mistral Small', provider: 'Mistral', inputCost: 2.0, outputCost: 6.0, category: 'flagship', contextWindow: '32K', score: 73 },
+  { name: 'Mixtral 8x7B', provider: 'Mistral', inputCost: 0.7, outputCost: 0.7, category: 'efficient', contextWindow: '32K', score: 68 },
+  { name: 'Mistral 7B', provider: 'Mistral', inputCost: 0.25, outputCost: 0.25, category: 'efficient', contextWindow: '32K', score: 40 },
+
+  // Cohere Models
+  { name: 'Command R+', provider: 'Cohere', inputCost: 3.0, outputCost: 15.0, category: 'flagship', contextWindow: '128K', score: 80 },
+  { name: 'Command R', provider: 'Cohere', inputCost: 0.5, outputCost: 1.5, category: 'efficient', contextWindow: '4K', score: 67 },
+  { name: 'Command', provider: 'Cohere', inputCost: 0.3, outputCost: 0.6, category: 'efficient', contextWindow: '4K' },
+
+  // Groq Models (High Speed)
+  { name: 'Llama 3 70B (Groq)', provider: 'Groq', inputCost: 0.59, outputCost: 0.79, category: 'flagship', contextWindow: '8K', score: 88 },
+  { name: 'Llama 3 8B (Groq)', provider: 'Groq', inputCost: 0.05, outputCost: 0.1, category: 'efficient', contextWindow: '8K', score: 58 },
+  { name: 'Mixtral 8x7B (Groq)', provider: 'Groq', inputCost: 0.27, outputCost: 0.27, category: 'efficient', contextWindow: '32K', score: 68 },
+  { name: 'Gemma 7B (Groq)', provider: 'Groq', inputCost: 0.1, outputCost: 0.1, category: 'efficient', contextWindow: '8K', score: 59 },
+
+  // Perplexity Models
+  { name: 'PPLX 70B Online', provider: 'Perplexity', inputCost: 1.0, outputCost: 1.0, category: 'flagship', contextWindow: '4K', score: 45 },
+  { name: 'PPLX 7B Online', provider: 'Perplexity', inputCost: 0.2, outputCost: 0.2, category: 'efficient', contextWindow: '4K', score: 35 },
+
+  // DeepSeek Models
+  { name: 'DeepSeek V2', provider: 'DeepSeek', inputCost: 0.14, outputCost: 0.28, category: 'efficient', contextWindow: '32K' },
+
+  // Cloudflare Workers AI
+  { name: 'Llama 2 7B Chat (FP16)', provider: 'Cloudflare', inputCost: 0.56, outputCost: 6.66, category: 'efficient', contextWindow: '3K' },
+  { name: 'Llama 2 7B Chat (INT8)', provider: 'Cloudflare', inputCost: 0.16, outputCost: 0.24, category: 'efficient', contextWindow: '2K' },
+  { name: 'Mistral 7B Instruct', provider: 'Cloudflare', inputCost: 0.11, outputCost: 0.19, category: 'efficient', contextWindow: '32K' },
+
+  // AWS Bedrock Models
+  { name: 'Jurassic-2 Ultra (AWS)', provider: 'AWS', inputCost: 18.8, outputCost: 18.8, category: 'flagship', contextWindow: '32K' },
+  { name: 'Jurassic-2 Mid (AWS)', provider: 'AWS', inputCost: 12.5, outputCost: 12.5, category: 'flagship', contextWindow: '32K' },
+  { name: 'Titan Text Express (AWS)', provider: 'AWS', inputCost: 0.8, outputCost: 1.6, category: 'efficient', contextWindow: '32K' },
+  { name: 'Titan Text Lite (AWS)', provider: 'AWS', inputCost: 0.3, outputCost: 0.4, category: 'efficient', contextWindow: '32K' },
+
+  // Replicate Models
+  { name: 'Meta Llama 3 70B (Replicate)', provider: 'Replicate', inputCost: 0.65, outputCost: 2.75, category: 'flagship', contextWindow: '8K' },
+  { name: 'Meta Llama 3 8B (Replicate)', provider: 'Replicate', inputCost: 0.05, outputCost: 0.25, category: 'efficient', contextWindow: '8K' },
+  { name: 'Llama 2 70B (Replicate)', provider: 'Replicate', inputCost: 0.65, outputCost: 2.75, category: 'flagship', contextWindow: '4K' },
+  { name: 'Llama 2 13B (Replicate)', provider: 'Replicate', inputCost: 0.1, outputCost: 0.5, category: 'efficient', contextWindow: '4K' },
+  { name: 'Llama 2 7B (Replicate)', provider: 'Replicate', inputCost: 0.05, outputCost: 0.25, category: 'efficient', contextWindow: '4K' },
 ];
 
 const PriceCalculator = () => {
@@ -68,6 +133,15 @@ const PriceCalculator = () => {
       case 'Anthropic': return 'bg-orange-100 text-orange-800';
       case 'Google': return 'bg-blue-100 text-blue-800';
       case 'Cohere': return 'bg-purple-100 text-purple-800';
+      case 'Mistral': return 'bg-red-100 text-red-800';
+      case 'Fireworks': return 'bg-yellow-100 text-yellow-800';
+      case 'Deepinfra': return 'bg-indigo-100 text-indigo-800';
+      case 'Groq': return 'bg-pink-100 text-pink-800';
+      case 'Perplexity': return 'bg-cyan-100 text-cyan-800';
+      case 'DeepSeek': return 'bg-emerald-100 text-emerald-800';
+      case 'Cloudflare': return 'bg-orange-100 text-orange-800';
+      case 'AWS': return 'bg-amber-100 text-amber-800';
+      case 'Replicate': return 'bg-violet-100 text-violet-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
