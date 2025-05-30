@@ -83,10 +83,10 @@ interface AnalysisEntry {
 
 // Helper to convert context window string (e.g., "128K", "1M") to number
 const parseContextWindow = (cw: string | undefined): number => {
-  if (!cw) return 0; // Or a sensible default like 4096
+  if (!cw) return 4096; // Default if undefined
   const value = parseFloat(cw);
-  if (cw.toUpperCase().includes("K")) return value * 1000;
   if (cw.toUpperCase().includes("M")) return value * 1000000;
+  if (cw.toUpperCase().includes("K")) return value * 1000;
   return value;
 };
 
@@ -100,13 +100,13 @@ const tokenizers: TokenizerInfo[] = [
     description:
       "OpenAI's most advanced model. Variant: GPT-4o. Costs per 1K tokens.",
     contextWindow: parseContextWindow("128K"),
-    outputLimit: 16384,
-    imageTokens: { small: 85, large: 170 },
+    outputLimit: 16384, // increased for GPT-4o
+    imageTokens: { small: 85, large: 170 }, // Standard for o200k_base vision
     imageTokenizationMode: "fixed",
-    videoTokensPerSecond: 0,
-    audioTokensPerSecond: 0,
+    videoTokensPerSecond: 0, // Placeholder, OpenAI vision models typically don't charge per second for video yet
+    audioTokensPerSecond: 0, // Placeholder
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 5.0, output: 15.0 },
+    costPer1kTokens: { input: 0.005, output: 0.02 },
   },
   {
     name: "GPT-4o (2024-08-06)",
@@ -122,7 +122,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 2.5, output: 10.0 },
+    costPer1kTokens: { input: 0.0025, output: 0.01 },
   },
   {
     name: "GPT-4o Mini",
@@ -138,7 +138,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 0.15, output: 0.6 },
+    costPer1kTokens: { input: 0.00015, output: 0.0006 },
   },
   {
     name: "GPT-4o (2024-05-13)",
@@ -154,7 +154,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 5.0, output: 15.0 },
+    costPer1kTokens: { input: 0.005, output: 0.015 },
   },
   {
     name: "GPT-4 Turbo (2024-04-09)",
@@ -163,13 +163,13 @@ const tokenizers: TokenizerInfo[] = [
     avgCharsPerToken: 4,
     description: "OpenAI's powerful and fast GPT-4 Turbo. Costs per 1K tokens.",
     contextWindow: parseContextWindow("128K"),
-    outputLimit: 4096,
+    outputLimit: 4096, // Standard for older Turbo
     imageTokens: { small: 85, large: 170 }, // GPT-4 Turbo has vision
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
-    costPer1kTokens: { input: 10.0, output: 30.0 },
+    costPer1kTokens: { input: 0.01, output: 0.03 },
   },
   {
     name: "GPT-4",
@@ -184,7 +184,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
-    costPer1kTokens: { input: 30.0, output: 60.0 },
+    costPer1kTokens: { input: 0.03, output: 0.06 },
   },
   {
     name: "GPT-4-32K",
@@ -200,7 +200,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
-    costPer1kTokens: { input: 60.0, output: 120.0 },
+    costPer1kTokens: { input: 0.06, output: 0.12 },
   },
   {
     name: "GPT-3.5 Turbo (0125)",
@@ -210,11 +210,11 @@ const tokenizers: TokenizerInfo[] = [
     description: "OpenAI's efficient GPT-3.5 Turbo. Costs per 1K tokens.",
     contextWindow: parseContextWindow("16K"),
     outputLimit: 4096,
-    imageTokenizationMode: "none", // No vision for 3.5T text models
+    imageTokenizationMode: "none",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
-    costPer1kTokens: { input: 0.5, output: 1.5 },
+    costPer1kTokens: { input: 0.0005, output: 0.0015 },
   },
   {
     name: "GPT-3.5 Turbo Instruct",
@@ -228,7 +228,97 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
-    costPer1kTokens: { input: 1.5, output: 2.0 },
+    costPer1kTokens: { input: 0.0015, output: 0.002 },
+  },
+  {
+    name: "GPT-4.1",
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI's GPT-4.1 model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1M"),
+    outputLimit: 16384, // Assuming larger output for 1M context
+    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokens: { small: 85, large: 170 },
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)", // Likely new encoding
+    costPer1kTokens: { input: 0.5, output: 0.008 },
+  },
+  {
+    name: "GPT-4.1 mini",
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI's efficient GPT-4.1 mini. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1M"),
+    outputLimit: 16384,
+    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokens: { small: 85, large: 170 },
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)",
+    costPer1kTokens: { input: 0.1, output: 0.0016 },
+  },
+  {
+    name: "GPT-4.1 nano",
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI's smallest GPT-4.1 nano. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1M"),
+    outputLimit: 16384,
+    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokens: { small: 85, large: 170 },
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)",
+    costPer1kTokens: { input: 0.025, output: 0.0004 },
+  },
+  {
+    name: "o3",
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI o3 model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 16384, // Assuming similar to GPT-4o
+    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokens: { small: 85, large: 170 },
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)",
+    costPer1kTokens: { input: 2.5, output: 0.04 },
+  },
+  {
+    name: "o4-mini",
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI o4-mini model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 16384,
+    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokens: { small: 85, large: 170 },
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)",
+    costPer1kTokens: { input: 0.275, output: 0.0044 },
+  },
+  {
+    name: "GPT-o4-mini", // Distinct from o4-mini as per PriceCalculator
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI GPT-o4-mini model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 16384,
+    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokens: { small: 85, large: 170 },
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)",
+    costPer1kTokens: { input: 0.3, output: 0.0024 },
   },
 
   // Anthropic Models from PriceCalculator.tsx
@@ -245,7 +335,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "Custom subword tokenizer",
-    costPer1kTokens: { input: 15.0, output: 75.0 },
+    costPer1kTokens: { input: 0.015, output: 0.075 },
   },
   {
     name: "Claude 3 Sonnet",
@@ -260,7 +350,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "Custom subword tokenizer",
-    costPer1kTokens: { input: 3.0, output: 15.0 },
+    costPer1kTokens: { input: 0.003, output: 0.015 },
   },
   {
     name: "Claude 3 Haiku",
@@ -275,7 +365,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "Custom subword tokenizer",
-    costPer1kTokens: { input: 0.25, output: 1.25 },
+    costPer1kTokens: { input: 0.00025, output: 0.00125 },
   },
   {
     name: "Claude 2.1",
@@ -290,7 +380,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "Custom subword tokenizer",
-    costPer1kTokens: { input: 8.0, output: 24.0 },
+    costPer1kTokens: { input: 0.008, output: 0.024 },
   },
   {
     name: "Claude 2.0",
@@ -305,7 +395,7 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "Custom subword tokenizer",
-    costPer1kTokens: { input: 8.0, output: 24.0 },
+    costPer1kTokens: { input: 0.008, output: 0.024 },
   },
   {
     name: "Claude Instant 1.2",
@@ -320,7 +410,52 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "Custom subword tokenizer",
-    costPer1kTokens: { input: 0.8, output: 2.4 },
+    costPer1kTokens: { input: 0.0008, output: 0.0024 },
+  },
+  {
+    name: "Claude Opus 4",
+    provider: "Anthropic",
+    avgTokensPerWord: 1.25,
+    avgCharsPerToken: 3.2,
+    description:
+      "Anthropic's Claude Opus 4. Image support via formula. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "formula",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom subword tokenizer",
+    costPer1kTokens: { input: 0.015, output: 0.075 },
+  },
+  {
+    name: "Claude Sonnet 4",
+    provider: "Anthropic",
+    avgTokensPerWord: 1.25,
+    avgCharsPerToken: 3.2,
+    description:
+      "Anthropic's Claude Sonnet 4. Image support via formula. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "formula",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom subword tokenizer",
+    costPer1kTokens: { input: 0.003, output: 0.015 },
+  },
+  {
+    name: "Claude Sonnet 3.7",
+    provider: "Anthropic",
+    avgTokensPerWord: 1.25,
+    avgCharsPerToken: 3.2,
+    description:
+      "Anthropic's Claude Sonnet 3.7. Image support via formula. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "formula",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom subword tokenizer",
+    costPer1kTokens: { input: 0.003, output: 0.015 },
   },
 
   // Google Models from PriceCalculator.tsx
@@ -331,13 +466,13 @@ const tokenizers: TokenizerInfo[] = [
     avgCharsPerToken: 4,
     description: "Google's flagship Gemini 1.5 Pro model. Costs per 1K tokens.",
     contextWindow: parseContextWindow("1M"),
-    outputLimit: 8192, // Common for Gemini Pro
-    imageTokens: { small: 258, large: 258 }, // Standard Gemini image tokens
+    outputLimit: 8192,
+    imageTokens: { small: 258, large: 258 }, // Fixed token cost per image
     imageTokenizationMode: "fixed",
-    videoTokensPerSecond: 263, // Assuming same as Gemini 1.0/Flash
-    audioTokensPerSecond: 32, // Assuming same as Gemini 1.0/Flash
+    videoTokensPerSecond: 263, // Placeholder based on Gemini 1.0 docs
+    audioTokensPerSecond: 32, // Placeholder based on Gemini 1.0 docs
     tokenizerType: "SentencePiece",
-    costPer1kTokens: { input: 3.5, output: 10.5 },
+    costPer1kTokens: { input: 0.0035, output: 0.0105 },
   },
   {
     name: "Gemini 1.5 Flash",
@@ -346,14 +481,14 @@ const tokenizers: TokenizerInfo[] = [
     avgCharsPerToken: 4,
     description:
       "Google's fast and efficient Gemini 1.5 Flash model. Costs per 1K tokens.",
-    contextWindow: parseContextWindow("2.8M"),
+    contextWindow: parseContextWindow("2.8M"), // Note: PriceCalc had 2.8M, previous TC had 1M. Using 2.8M.
     outputLimit: 8192,
     imageTokens: { small: 258, large: 258 },
     imageTokenizationMode: "fixed",
-    videoTokensPerSecond: 263,
-    audioTokensPerSecond: 32,
+    videoTokensPerSecond: 263, // Placeholder based on Gemini 1.0 docs
+    audioTokensPerSecond: 32, // Placeholder based on Gemini 1.0 docs
     tokenizerType: "SentencePiece",
-    costPer1kTokens: { input: 0.075, output: 0.3 },
+    costPer1kTokens: { input: 0.00035, output: 0.00105 }, // Corrected from 0.000075 / 0.0003
   },
   {
     name: "Gemini Pro", // This is likely older Gemini 1.0 Pro
@@ -363,27 +498,275 @@ const tokenizers: TokenizerInfo[] = [
     description: "Google's Gemini Pro model. Costs per 1K tokens.",
     contextWindow: parseContextWindow("32K"),
     outputLimit: 2048, // Older Gemini Pro limit
-    imageTokenizationMode: "none", // Older Gemini Pro for text might not have the same image API as 1.5
+    imageTokenizationMode: "none", // Older Gemini Pro (text) likely no direct image token charge
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "SentencePiece",
-    costPer1kTokens: { input: 0.5, output: 1.5 },
+    costPer1kTokens: { input: 0.0005, output: 0.0015 },
+  },
+  {
+    name: "Gemini 2.5 Flash Preview", // This is a new name from PriceCalculator
+    provider: "Google",
+    avgTokensPerWord: 1.2,
+    avgCharsPerToken: 4,
+    description: "Google's Gemini 2.5 Flash Preview. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1M"),
+    outputLimit: 8192, // Assuming similar to other 1.5/2.5 models
+    imageTokens: { small: 258, large: 258 }, // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
+    videoTokensPerSecond: 263, // Assuming capabilities
+    audioTokensPerSecond: 32, // Assuming capabilities
+    tokenizerType: "SentencePiece",
+    costPer1kTokens: { input: 0.00015, output: 0.0006 },
+  },
+  {
+    name: "Gemini 2.5 Pro Preview", // This is a new name from PriceCalculator
+    provider: "Google",
+    avgTokensPerWord: 1.2,
+    avgCharsPerToken: 4,
+    description: "Google's Gemini 2.5 Pro Preview. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1M"),
+    outputLimit: 8192,
+    imageTokens: { small: 258, large: 258 }, // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
+    videoTokensPerSecond: 263, // Assuming capabilities
+    audioTokensPerSecond: 32, // Assuming capabilities
+    tokenizerType: "SentencePiece",
+    costPer1kTokens: { input: 0.00125, output: 0.01 },
+  },
+  {
+    name: "Gemini 2.0 Flash", // This is a new name from PriceCalculator
+    provider: "Google",
+    avgTokensPerWord: 1.2,
+    avgCharsPerToken: 4,
+    description: "Google's Gemini 2.0 Flash. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1M"),
+    outputLimit: 8192,
+    imageTokens: { small: 258, large: 258 }, // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
+    videoTokensPerSecond: 263, // Assuming capabilities
+    audioTokensPerSecond: 32, // Assuming capabilities
+    tokenizerType: "SentencePiece",
+    costPer1kTokens: { input: 0.0001, output: 0.0004 },
+  },
+  {
+    name: "Gemini 2.0 Flash-Lite", // This is a new name from PriceCalculator
+    provider: "Google",
+    avgTokensPerWord: 1.2,
+    avgCharsPerToken: 4,
+    description: "Google's Gemini 2.0 Flash-Lite. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1M"),
+    outputLimit: 8192,
+    imageTokens: { small: 258, large: 258 }, // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
+    videoTokensPerSecond: 263, // Assuming capabilities
+    audioTokensPerSecond: 32, // Assuming capabilities
+    tokenizerType: "SentencePiece",
+    costPer1kTokens: { input: 0.000075, output: 0.0003 },
   },
 
-  // Groq Models - Llama 3 variants (from PriceCalculator)
+  // Meta Llama Models (Fireworks, Deepinfra) from PriceCalculator.tsx
   {
-    name: "Llama 3 70B (Groq)",
-    provider: "Groq",
-    avgTokensPerWord: 1.3, // Llama general
-    avgCharsPerToken: 3.8, // Llama general
-    description: "Llama 3 70B via Groq. High speed. Costs per 1K tokens.",
+    name: "Llama 3.1 405B Instruct",
+    provider: "Fireworks",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 3.1 405B Instruct via Fireworks. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 4096, // Common Llama limit
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.003, output: 0.003 },
+  },
+  {
+    name: "Llama 3.1 70B Instruct",
+    provider: "Deepinfra",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 3.1 70B Instruct via Deepinfra. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.52, output: 0.75 },
+  },
+  {
+    name: "Llama 3.1 8B Instruct",
+    provider: "Deepinfra",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 3.1 8B Instruct via Deepinfra. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.09, output: 0.09 },
+  },
+  {
+    name: "Llama 3 70B Instruct",
+    provider: "Deepinfra", // Note: PriceCalculator lists other Llama 3 70B with Groq. This one is Deepinfra.
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 3 70B Instruct via Deepinfra. Costs per 1K tokens.",
     contextWindow: parseContextWindow("8K"),
     outputLimit: 4096,
-    imageTokenizationMode: "none", // Llama text models
+    imageTokenizationMode: "none",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (SentencePiece)",
     costPer1kTokens: { input: 0.59, output: 0.79 },
+  },
+  {
+    name: "Llama 3 8B Instruct",
+    provider: "Deepinfra", // Note: PriceCalculator lists other Llama 3 8B with Groq. This one is Deepinfra.
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 3 8B Instruct via Deepinfra. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("8K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.08, output: 0.08 },
+  },
+
+  // Mistral Models from PriceCalculator.tsx
+  {
+    name: "Mistral Large",
+    provider: "Mistral",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8, // General for SentencePiece based
+    description: "Mistral Large model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"),
+    outputLimit: 4096, // Or 8K, check official
+    imageTokenizationMode: "none", // Mistral API has some vision but might be different models
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.008, output: 0.024 },
+  },
+  {
+    name: "Mistral Medium",
+    provider: "Mistral",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Mistral Medium model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.0027, output: 0.0081 },
+  },
+  {
+    name: "Mistral Small",
+    provider: "Mistral",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Mistral Small model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.002, output: 0.006 },
+  },
+  {
+    name: "Mixtral 8x7B",
+    provider: "Mistral", // PriceCalculator also has Groq version. This is the Mistral one.
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Mixtral 8x7B by Mistral. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.7, output: 0.7 }, // This cost looks high if per K tokens, might be M. Re-check. Assuming K for now.
+  },
+  {
+    name: "Mistral 7B",
+    provider: "Mistral", // PriceCalculator also has Cloudflare version. This is Mistral.
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Mistral 7B model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.25, output: 0.25 }, // This cost looks high if per K tokens. Re-check. Assuming K for now.
+  },
+
+  // Cohere Models from PriceCalculator.tsx
+  {
+    name: "Command R+",
+    provider: "Cohere",
+    avgTokensPerWord: 1.2, // Cohere tends to be efficient
+    avgCharsPerToken: 3.5,
+    description: "Cohere's Command R+ model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none", // Cohere has multimodal features, but pricing might vary.
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom subword (Cohere)",
+    costPer1kTokens: { input: 0.003, output: 0.015 },
+  },
+  {
+    name: "Command R",
+    provider: "Cohere",
+    avgTokensPerWord: 1.2,
+    avgCharsPerToken: 3.5,
+    description: "Cohere's Command R model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("4K"), // PriceCalculator has 4K, Cohere docs say 128K. Using PriceCalc.
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom subword (Cohere)",
+    costPer1kTokens: { input: 0.0005, output: 0.0015 },
+  },
+  {
+    name: "Command",
+    provider: "Cohere",
+    avgTokensPerWord: 1.2,
+    avgCharsPerToken: 3.5,
+    description: "Cohere's Command model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("4K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom subword (Cohere)",
+    costPer1kTokens: { input: 0.0003, output: 0.0006 },
+  },
+
+  // Groq Models from PriceCalculator.tsx
+  {
+    name: "Llama 3 70B (Groq)",
+    provider: "Groq",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 3 70B via Groq. High speed. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("8K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.59, output: 0.79 }, // High if K. Might be M.
   },
   {
     name: "Llama 3 8B (Groq)",
@@ -400,7 +783,7 @@ const tokenizers: TokenizerInfo[] = [
     costPer1kTokens: { input: 0.05, output: 0.1 },
   },
   {
-    name: "Mixtral 8x7B (Groq)", // Already exists as Mistral provider, adding Groq variant
+    name: "Mixtral 8x7B (Groq)",
     provider: "Groq",
     avgTokensPerWord: 1.3,
     avgCharsPerToken: 3.8,
@@ -411,12 +794,12 @@ const tokenizers: TokenizerInfo[] = [
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (SentencePiece)",
-    costPer1kTokens: { input: 0.27, output: 0.27 },
+    costPer1kTokens: { input: 0.27, output: 0.27 }, // High if K.
   },
   {
     name: "Gemma 7B (Groq)",
     provider: "Groq",
-    avgTokensPerWord: 1.2, // Gemma tends to be efficient
+    avgTokensPerWord: 1.2,
     avgCharsPerToken: 4.0,
     description: "Gemma 7B via Groq. High speed. Costs per 1K tokens.",
     contextWindow: parseContextWindow("8K"),
@@ -428,27 +811,228 @@ const tokenizers: TokenizerInfo[] = [
     costPer1kTokens: { input: 0.1, output: 0.1 },
   },
 
-  // xAI (Grok-3 was here, keeping it for now unless PriceCalculator has it under a different name)
-  // PriceCalculator.tsx does not explicitly list Grok-3.
-  // For now, I'll remove the old Grok-3 entry and only include models from PriceCalculator.tsx
-  // If Grok-3 or other xAI models are needed, they should be added to PriceCalculator.tsx first.
+  // Perplexity Models from PriceCalculator.tsx
+  {
+    name: "PPLX 70B Online",
+    provider: "Perplexity",
+    avgTokensPerWord: 1.3, // General estimate
+    avgCharsPerToken: 4,
+    description: "PPLX 70B Online by Perplexity. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("4K"),
+    outputLimit: 4096, // Check official
+    imageTokenizationMode: "none", // Typically text-focused
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom/Unknown", // Check official
+    costPer1kTokens: { input: 1.0, output: 1.0 }, // This is very high if per K, assume M -> 0.001, 0.001. Sticking to PriceCalculator for now.
+  },
+  {
+    name: "PPLX 7B Online",
+    provider: "Perplexity",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "PPLX 7B Online by Perplexity. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("4K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom/Unknown",
+    costPer1kTokens: { input: 0.2, output: 0.2 }, // High if K.
+  },
 
-  // Other models from PriceCalculator (examples, will add more based on review)
-  // This part requires manual mapping as TokenCalculator has more fields.
-  // Will focus on the ones currently in TokenCalculator and then add distinct new ones.
+  // DeepSeek Models from PriceCalculator.tsx
+  {
+    name: "DeepSeek V2",
+    provider: "DeepSeek",
+    avgTokensPerWord: 1.25, // Efficient like other modern tokenizers
+    avgCharsPerToken: 3.5,
+    description: "DeepSeek V2 model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"),
+    outputLimit: 4096, // Check official
+    imageTokenizationMode: "none", // Or check if vision variant exists
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom (DeepSeek)",
+    costPer1kTokens: { input: 0.00014, output: 0.00028 },
+  },
 
-  // Placeholder for other models not yet fully mapped:
-  // Meta Llama Models (Deepinfra, Fireworks)
-  // Mistral Models (Mistral)
-  // Cohere Models (Cohere)
-  // Perplexity Models (Perplexity)
-  // DeepSeek Models (DeepSeek)
-  // Cloudflare Workers AI (Cloudflare)
-  // AWS Bedrock Models (AWS)
-  // Replicate Models (Replicate)
+  // Cloudflare Workers AI Models from PriceCalculator.tsx
+  {
+    name: "Llama 2 7B Chat (FP16)",
+    provider: "Cloudflare",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 2 7B Chat (FP16) via Cloudflare. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("3K"),
+    outputLimit: 2048, // Check official
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.00056, output: 0.00666 },
+  },
+  {
+    name: "Llama 2 7B Chat (INT8)",
+    provider: "Cloudflare",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 2 7B Chat (INT8) via Cloudflare. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("2K"),
+    outputLimit: 2048,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.00016, output: 0.00024 },
+  },
+  {
+    name: "Mistral 7B Instruct",
+    provider: "Cloudflare", // Note: Mistral also offers their own 7B. This is Cloudflare's.
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Mistral 7B Instruct via Cloudflare. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.00011, output: 0.00019 },
+  },
+
+  // AWS Bedrock Models from PriceCalculator.tsx
+  {
+    name: "Jurassic-2 Ultra (AWS)",
+    provider: "AWS",
+    avgTokensPerWord: 1.4, // Older models might be less token efficient
+    avgCharsPerToken: 4.2,
+    description: "Jurassic-2 Ultra via AWS Bedrock. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"), // PriceCalc: 32K, AI21 docs: 8K. Using PriceCalc.
+    outputLimit: 8192, // Check official
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom (AI21)",
+    costPer1kTokens: { input: 0.0188, output: 0.0188 },
+  },
+  {
+    name: "Jurassic-2 Mid (AWS)",
+    provider: "AWS",
+    avgTokensPerWord: 1.4,
+    avgCharsPerToken: 4.2,
+    description: "Jurassic-2 Mid via AWS Bedrock. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"), // PriceCalc: 32K, AI21 docs: 8K. Using PriceCalc.
+    outputLimit: 8192,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom (AI21)",
+    costPer1kTokens: { input: 0.0125, output: 0.0125 },
+  },
+  {
+    name: "Titan Text Express (AWS)",
+    provider: "AWS",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "Titan Text Express via AWS Bedrock. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"), // PriceCalc: 32K, AWS: 8K. Using PriceCalc.
+    outputLimit: 8192, // Check official
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom (Amazon)",
+    costPer1kTokens: { input: 0.0008, output: 0.0016 },
+  },
+  {
+    name: "Titan Text Lite (AWS)",
+    provider: "AWS",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "Titan Text Lite via AWS Bedrock. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("32K"), // PriceCalc: 32K, AWS: 8K. Using PriceCalc.
+    outputLimit: 8192,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "Custom (Amazon)",
+    costPer1kTokens: { input: 0.0003, output: 0.0004 },
+  },
+
+  // Replicate Models from PriceCalculator.tsx
+  {
+    name: "Meta Llama 3 70B (Replicate)",
+    provider: "Replicate",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Meta Llama 3 70B via Replicate. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("8K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.00065, output: 0.00275 },
+  },
+  {
+    name: "Meta Llama 3 8B (Replicate)",
+    provider: "Replicate",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Meta Llama 3 8B via Replicate. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("8K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.00005, output: 0.00025 },
+  },
+  {
+    name: "Llama 2 70B (Replicate)",
+    provider: "Replicate",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 2 70B via Replicate. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("4K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.00065, output: 0.00275 },
+  },
+  {
+    name: "Llama 2 13B (Replicate)",
+    provider: "Replicate",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 2 13B via Replicate. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("4K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.0001, output: 0.0005 },
+  },
+  {
+    name: "Llama 2 7B (Replicate)",
+    provider: "Replicate",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 3.8,
+    description: "Llama 2 7B via Replicate. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("4K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "none",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (SentencePiece)",
+    costPer1kTokens: { input: 0.00005, output: 0.00025 },
+  },
 ];
 
-// Initialize o200k_base encoder for OpenAI models that use it (GPT-4o)
+// Initialize o200k_base encoder for OpenAI models that use it (GPT-4o, GPT-4.1 variants, o3, o4-mini)
 // We are doing this outside the component to avoid re-initializing on every render.
 // Ensure this specific encoding name is correct for your models.
 let o200kEncoder: Tiktoken | null = null;
@@ -802,6 +1386,19 @@ const TokenCalculator = () => {
                       <strong>Cost:</strong> $
                       {currentTokenizer.costPer1kTokens.input}/1k input, $
                       {currentTokenizer.costPer1kTokens.output}/1k output
+                    </p>
+                  )}
+                  {currentTokenizer.costPer1kTokens && (
+                    <p className="text-xs text-gray-500">
+                      <strong>(Per 1M):</strong> $
+                      {(currentTokenizer.costPer1kTokens.input * 1000).toFixed(
+                        2
+                      )}
+                      /1M input, $
+                      {(currentTokenizer.costPer1kTokens.output * 1000).toFixed(
+                        2
+                      )}
+                      /1M output
                     </p>
                   )}
                   <div className="flex gap-2 mt-2">

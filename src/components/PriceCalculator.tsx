@@ -44,8 +44,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4o",
     provider: "OpenAI",
-    inputCost: 5.0,
-    outputCost: 20.0,
+    inputCost: 0.005,
+    outputCost: 0.02,
     category: "flagship",
     contextWindow: "128K",
     score: 100,
@@ -53,8 +53,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4o (2024-08-06)",
     provider: "OpenAI",
-    inputCost: 2.5,
-    outputCost: 10.0,
+    inputCost: 0.0025,
+    outputCost: 0.01,
     category: "flagship",
     contextWindow: "128K",
     score: 100,
@@ -62,8 +62,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4o Mini",
     provider: "OpenAI",
-    inputCost: 0.15,
-    outputCost: 0.6,
+    inputCost: 0.00015,
+    outputCost: 0.0006,
     category: "efficient",
     contextWindow: "128K",
     score: 85,
@@ -71,8 +71,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4o (2024-05-13)",
     provider: "OpenAI",
-    inputCost: 5.0,
-    outputCost: 15.0,
+    inputCost: 0.005,
+    outputCost: 0.015,
     category: "flagship",
     contextWindow: "128K",
     score: 100,
@@ -80,8 +80,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4 Turbo (2024-04-09)",
     provider: "OpenAI",
-    inputCost: 10.0,
-    outputCost: 30.0,
+    inputCost: 0.01,
+    outputCost: 0.03,
     category: "flagship",
     contextWindow: "128K",
     score: 94,
@@ -89,8 +89,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4",
     provider: "OpenAI",
-    inputCost: 30.0,
-    outputCost: 60.0,
+    inputCost: 0.03,
+    outputCost: 0.06,
     category: "flagship",
     contextWindow: "8K",
     score: 84,
@@ -98,16 +98,16 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4-32K",
     provider: "OpenAI",
-    inputCost: 60.0,
-    outputCost: 120.0,
+    inputCost: 0.06,
+    outputCost: 0.12,
     category: "flagship",
     contextWindow: "32K",
   },
   {
     name: "GPT-3.5 Turbo (0125)",
     provider: "OpenAI",
-    inputCost: 0.5,
-    outputCost: 1.5,
+    inputCost: 0.0005,
+    outputCost: 0.0015,
     category: "efficient",
     contextWindow: "16K",
     score: 67,
@@ -115,8 +115,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-3.5 Turbo Instruct",
     provider: "OpenAI",
-    inputCost: 1.5,
-    outputCost: 2.0,
+    inputCost: 0.0015,
+    outputCost: 0.002,
     category: "efficient",
     contextWindow: "4K",
     score: 60,
@@ -124,48 +124,48 @@ const modelPricing: ModelPricing[] = [
   {
     name: "GPT-4.1",
     provider: "OpenAI",
-    inputCost: 2.0,
-    outputCost: 8.0,
+    inputCost: 0.5,
+    outputCost: 0.008,
     category: "flagship",
     contextWindow: "1M",
   },
   {
     name: "GPT-4.1 mini",
     provider: "OpenAI",
-    inputCost: 0.4,
-    outputCost: 1.6,
+    inputCost: 0.1,
+    outputCost: 0.0016,
     category: "efficient",
     contextWindow: "1M",
   },
   {
     name: "GPT-4.1 nano",
     provider: "OpenAI",
-    inputCost: 0.1,
-    outputCost: 0.4,
+    inputCost: 0.025,
+    outputCost: 0.0004,
     category: "efficient",
     contextWindow: "1M",
   },
   {
     name: "o3",
     provider: "OpenAI",
-    inputCost: 10.0,
-    outputCost: 40.0,
+    inputCost: 2.5,
+    outputCost: 0.04,
     category: "flagship",
     contextWindow: "200K",
   },
   {
     name: "o4-mini",
     provider: "OpenAI",
-    inputCost: 1.1,
-    outputCost: 4.4,
+    inputCost: 0.275,
+    outputCost: 0.0044,
     category: "efficient",
     contextWindow: "200K",
   },
   {
     name: "GPT-o4-mini",
     provider: "OpenAI",
-    inputCost: 0.6,
-    outputCost: 2.4,
+    inputCost: 0.3,
+    outputCost: 0.0024,
     category: "efficient",
     contextWindow: "128K",
   },
@@ -174,8 +174,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Claude 3 Opus",
     provider: "Anthropic",
-    inputCost: 15.0,
-    outputCost: 75.0,
+    inputCost: 0.015,
+    outputCost: 0.075,
     category: "flagship",
     contextWindow: "200K",
     score: 100,
@@ -183,8 +183,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Claude 3 Sonnet",
     provider: "Anthropic",
-    inputCost: 3.0,
-    outputCost: 15.0,
+    inputCost: 0.003,
+    outputCost: 0.015,
     category: "flagship",
     contextWindow: "200K",
     score: 85,
@@ -192,8 +192,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Claude 3 Haiku",
     provider: "Anthropic",
-    inputCost: 0.25,
-    outputCost: 1.25,
+    inputCost: 0.00025,
+    outputCost: 0.00125,
     category: "efficient",
     contextWindow: "200K",
     score: 78,
@@ -201,8 +201,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Claude 2.1",
     provider: "Anthropic",
-    inputCost: 8.0,
-    outputCost: 24.0,
+    inputCost: 0.008,
+    outputCost: 0.024,
     category: "flagship",
     contextWindow: "200K",
     score: 66,
@@ -210,8 +210,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Claude 2.0",
     provider: "Anthropic",
-    inputCost: 8.0,
-    outputCost: 24.0,
+    inputCost: 0.008,
+    outputCost: 0.024,
     category: "flagship",
     contextWindow: "100K",
     score: 72,
@@ -219,8 +219,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Claude Instant 1.2",
     provider: "Anthropic",
-    inputCost: 0.8,
-    outputCost: 2.4,
+    inputCost: 0.0008,
+    outputCost: 0.0024,
     category: "efficient",
     contextWindow: "100K",
     score: 65,
@@ -228,24 +228,24 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Claude Opus 4",
     provider: "Anthropic",
-    inputCost: 15.0,
-    outputCost: 75.0,
+    inputCost: 0.015,
+    outputCost: 0.075,
     category: "flagship",
     contextWindow: "200K",
   },
   {
     name: "Claude Sonnet 4",
     provider: "Anthropic",
-    inputCost: 3.0,
-    outputCost: 15.0,
+    inputCost: 0.003,
+    outputCost: 0.015,
     category: "flagship",
     contextWindow: "200K",
   },
   {
     name: "Claude Sonnet 3.7",
     provider: "Anthropic",
-    inputCost: 3.0,
-    outputCost: 15.0,
+    inputCost: 0.003,
+    outputCost: 0.015,
     category: "flagship",
     contextWindow: "200K",
   },
@@ -254,8 +254,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Gemini 1.5 Pro",
     provider: "Google",
-    inputCost: 3.5,
-    outputCost: 10.5,
+    inputCost: 0.0035,
+    outputCost: 0.0105,
     category: "flagship",
     contextWindow: "1M",
     score: 88,
@@ -263,16 +263,16 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Gemini 1.5 Flash",
     provider: "Google",
-    inputCost: 0.075,
-    outputCost: 0.3,
+    inputCost: 0.00035,
+    outputCost: 0.00105,
     category: "efficient",
     contextWindow: "2.8M",
   },
   {
     name: "Gemini Pro",
     provider: "Google",
-    inputCost: 0.5,
-    outputCost: 1.5,
+    inputCost: 0.0005,
+    outputCost: 0.0015,
     category: "efficient",
     contextWindow: "32K",
     score: 66,
@@ -280,32 +280,32 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Gemini 2.5 Flash Preview",
     provider: "Google",
-    inputCost: 0.15,
-    outputCost: 0.6,
+    inputCost: 0.00015,
+    outputCost: 0.0006,
     category: "efficient",
     contextWindow: "1M",
   },
   {
     name: "Gemini 2.5 Pro Preview",
     provider: "Google",
-    inputCost: 1.25,
-    outputCost: 10.0,
+    inputCost: 0.00125,
+    outputCost: 0.01,
     category: "flagship",
     contextWindow: "1M",
   },
   {
     name: "Gemini 2.0 Flash",
     provider: "Google",
-    inputCost: 0.1,
-    outputCost: 0.4,
+    inputCost: 0.0001,
+    outputCost: 0.0004,
     category: "efficient",
     contextWindow: "1M",
   },
   {
     name: "Gemini 2.0 Flash-Lite",
     provider: "Google",
-    inputCost: 0.075,
-    outputCost: 0.3,
+    inputCost: 0.000075,
+    outputCost: 0.0003,
     category: "efficient",
     contextWindow: "1M",
   },
@@ -314,8 +314,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Llama 3.1 405B Instruct",
     provider: "Fireworks",
-    inputCost: 3.0,
-    outputCost: 3.0,
+    inputCost: 0.003,
+    outputCost: 0.003,
     category: "flagship",
     contextWindow: "128K",
     score: 100,
@@ -361,8 +361,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Mistral Large",
     provider: "Mistral",
-    inputCost: 8.0,
-    outputCost: 24.0,
+    inputCost: 0.008,
+    outputCost: 0.024,
     category: "flagship",
     contextWindow: "32K",
     score: 84,
@@ -370,8 +370,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Mistral Medium",
     provider: "Mistral",
-    inputCost: 2.7,
-    outputCost: 8.1,
+    inputCost: 0.0027,
+    outputCost: 0.0081,
     category: "flagship",
     contextWindow: "32K",
     score: 76,
@@ -379,8 +379,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Mistral Small",
     provider: "Mistral",
-    inputCost: 2.0,
-    outputCost: 6.0,
+    inputCost: 0.002,
+    outputCost: 0.006,
     category: "flagship",
     contextWindow: "32K",
     score: 73,
@@ -408,8 +408,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Command R+",
     provider: "Cohere",
-    inputCost: 3.0,
-    outputCost: 15.0,
+    inputCost: 0.003,
+    outputCost: 0.015,
     category: "flagship",
     contextWindow: "128K",
     score: 80,
@@ -417,8 +417,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Command R",
     provider: "Cohere",
-    inputCost: 0.5,
-    outputCost: 1.5,
+    inputCost: 0.0005,
+    outputCost: 0.0015,
     category: "efficient",
     contextWindow: "4K",
     score: 67,
@@ -426,8 +426,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Command",
     provider: "Cohere",
-    inputCost: 0.3,
-    outputCost: 0.6,
+    inputCost: 0.0003,
+    outputCost: 0.0006,
     category: "efficient",
     contextWindow: "4K",
   },
@@ -494,8 +494,8 @@ const modelPricing: ModelPricing[] = [
   {
     name: "DeepSeek V2",
     provider: "DeepSeek",
-    inputCost: 0.14,
-    outputCost: 0.28,
+    inputCost: 0.00014,
+    outputCost: 0.00028,
     category: "efficient",
     contextWindow: "32K",
   },
@@ -504,24 +504,24 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Llama 2 7B Chat (FP16)",
     provider: "Cloudflare",
-    inputCost: 0.56,
-    outputCost: 6.66,
+    inputCost: 0.00056,
+    outputCost: 0.00666,
     category: "efficient",
     contextWindow: "3K",
   },
   {
     name: "Llama 2 7B Chat (INT8)",
     provider: "Cloudflare",
-    inputCost: 0.16,
-    outputCost: 0.24,
+    inputCost: 0.00016,
+    outputCost: 0.00024,
     category: "efficient",
     contextWindow: "2K",
   },
   {
     name: "Mistral 7B Instruct",
     provider: "Cloudflare",
-    inputCost: 0.11,
-    outputCost: 0.19,
+    inputCost: 0.00011,
+    outputCost: 0.00019,
     category: "efficient",
     contextWindow: "32K",
   },
@@ -530,32 +530,32 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Jurassic-2 Ultra (AWS)",
     provider: "AWS",
-    inputCost: 18.8,
-    outputCost: 18.8,
+    inputCost: 0.0188,
+    outputCost: 0.0188,
     category: "flagship",
     contextWindow: "32K",
   },
   {
     name: "Jurassic-2 Mid (AWS)",
     provider: "AWS",
-    inputCost: 12.5,
-    outputCost: 12.5,
+    inputCost: 0.0125,
+    outputCost: 0.0125,
     category: "flagship",
     contextWindow: "32K",
   },
   {
     name: "Titan Text Express (AWS)",
     provider: "AWS",
-    inputCost: 0.8,
-    outputCost: 1.6,
+    inputCost: 0.0008,
+    outputCost: 0.0016,
     category: "efficient",
     contextWindow: "32K",
   },
   {
     name: "Titan Text Lite (AWS)",
     provider: "AWS",
-    inputCost: 0.3,
-    outputCost: 0.4,
+    inputCost: 0.0003,
+    outputCost: 0.0004,
     category: "efficient",
     contextWindow: "32K",
   },
@@ -564,40 +564,40 @@ const modelPricing: ModelPricing[] = [
   {
     name: "Meta Llama 3 70B (Replicate)",
     provider: "Replicate",
-    inputCost: 0.65,
-    outputCost: 2.75,
+    inputCost: 0.00065,
+    outputCost: 0.00275,
     category: "flagship",
     contextWindow: "8K",
   },
   {
     name: "Meta Llama 3 8B (Replicate)",
     provider: "Replicate",
-    inputCost: 0.05,
-    outputCost: 0.25,
+    inputCost: 0.00005,
+    outputCost: 0.00025,
     category: "efficient",
     contextWindow: "8K",
   },
   {
     name: "Llama 2 70B (Replicate)",
     provider: "Replicate",
-    inputCost: 0.65,
-    outputCost: 2.75,
+    inputCost: 0.00065,
+    outputCost: 0.00275,
     category: "flagship",
     contextWindow: "4K",
   },
   {
     name: "Llama 2 13B (Replicate)",
     provider: "Replicate",
-    inputCost: 0.1,
-    outputCost: 0.5,
+    inputCost: 0.0001,
+    outputCost: 0.0005,
     category: "efficient",
     contextWindow: "4K",
   },
   {
     name: "Llama 2 7B (Replicate)",
     provider: "Replicate",
-    inputCost: 0.05,
-    outputCost: 0.25,
+    inputCost: 0.00005,
+    outputCost: 0.00025,
     category: "efficient",
     contextWindow: "4K",
   },
@@ -745,6 +745,18 @@ const PriceCalculator = () => {
                     ${currentModel.outputCost.toFixed(4)}
                   </span>
                 </div>
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>Input cost (per 1M tokens):</span>
+                  <span className="font-mono">
+                    ${(currentModel.inputCost * 1000).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>Output cost (per 1M tokens):</span>
+                  <span className="font-mono">
+                    ${(currentModel.outputCost * 1000).toFixed(2)}
+                  </span>
+                </div>
                 <div className="border-t pt-2">
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total Cost:</span>
@@ -843,6 +855,8 @@ const PriceCalculator = () => {
                   <th className="text-left p-2">Provider</th>
                   <th className="text-right p-2">Input (per 1K)</th>
                   <th className="text-right p-2">Output (per 1K)</th>
+                  <th className="text-right p-2">Input (per 1M)</th>
+                  <th className="text-right p-2">Output (per 1M)</th>
                   <th className="text-center p-2">Category</th>
                 </tr>
               </thead>
@@ -860,6 +874,12 @@ const PriceCalculator = () => {
                     </td>
                     <td className="p-2 text-right font-mono">
                       ${model.outputCost.toFixed(4)}
+                    </td>
+                    <td className="p-2 text-right font-mono text-gray-500">
+                      ${(model.inputCost * 1000).toFixed(2)}
+                    </td>
+                    <td className="p-2 text-right font-mono text-gray-500">
+                      ${(model.outputCost * 1000).toFixed(2)}
                     </td>
                     <td className="p-2 text-center">
                       <Badge
