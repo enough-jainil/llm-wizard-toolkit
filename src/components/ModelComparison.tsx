@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GitCompare, Star, Zap, DollarSign, Brain, Clock } from "lucide-react";
+import anthropicModelsFromJson from "../../models/anthropic/anthropic_models.json";
+import openAiModelsFromJson from "../../models/openai/openai_models.json";
 
 interface ModelData {
   name: string;
@@ -29,7 +31,8 @@ interface ModelData {
 }
 
 // Helper to convert context window string (e.g., "128K", "1M") to number
-const parseContextWindowToNumber = (cw?: string): number => {
+const parseContextWindowToNumber = (cw?: string | number): number => {
+  if (typeof cw === "number") return cw; // Directly use number if provided
   if (!cw) return 4096; // Default if undefined
   const value = parseFloat(cw);
   if (cw.toUpperCase().includes("M")) return value * 1000000;
@@ -37,506 +40,53 @@ const parseContextWindowToNumber = (cw?: string): number => {
   return value;
 };
 
-const modelData: ModelData[] = [
-  {
-    name: "GPT-4o",
-    provider: "OpenAI",
-    parameters: "~1.8T",
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.005,
-    outputCost: 0.02, // Existing, table N/A
-    speed: 90,
-    reasoning: 98,
-    coding: 92,
-    creative: 95,
-    multimodal: true,
-    languages: 50,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4o (2024-08-06)",
-    provider: "OpenAI",
-    parameters: "~1.8T",
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.0025,
-    outputCost: 0.01,
-    speed: 90,
-    reasoning: 98,
-    coding: 92,
-    creative: 95,
-    multimodal: true,
-    languages: 50,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4o Mini",
-    provider: "OpenAI",
-    parameters: "~8B",
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.00015,
-    outputCost: 0.0006,
-    speed: 120,
-    reasoning: 82,
-    coding: 85,
-    creative: 80,
-    multimodal: true,
-    languages: 50,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4o (2024-05-13)",
-    provider: "OpenAI",
-    parameters: "~1.8T",
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.005,
-    outputCost: 0.015,
-    speed: 90,
-    reasoning: 98,
-    coding: 92,
-    creative: 95,
-    multimodal: true,
-    languages: 50,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4 Turbo (2024-04-09)",
-    provider: "OpenAI",
-    parameters: "~1.8T",
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.01,
-    outputCost: 0.03,
-    speed: 85,
-    reasoning: 95,
-    coding: 90,
-    creative: 92,
-    multimodal: true,
-    languages: 50,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4",
-    provider: "OpenAI",
-    parameters: "~1.7T",
-    contextWindow: parseContextWindowToNumber("8K"),
-    inputCost: 0.03,
-    outputCost: 0.06,
-    speed: 70,
-    reasoning: 90,
-    coding: 88,
-    creative: 90,
-    multimodal: true,
-    languages: 50,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4-32K",
-    provider: "OpenAI",
-    parameters: "~1.7T",
-    contextWindow: parseContextWindowToNumber("32K"),
-    inputCost: 0.06,
-    outputCost: 0.12,
-    speed: 65,
-    reasoning: 90,
-    coding: 88,
-    creative: 90,
-    multimodal: true,
-    languages: 50,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-3.5 Turbo (0125)",
-    provider: "OpenAI",
-    parameters: "175B",
-    contextWindow: parseContextWindowToNumber("16K"),
-    inputCost: 0.0005,
-    outputCost: 0.0015,
-    speed: 130,
-    reasoning: 75,
-    coding: 70,
-    creative: 75,
-    multimodal: false,
-    languages: 40,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-3.5 Turbo Instruct",
-    provider: "OpenAI",
-    parameters: "175B",
-    contextWindow: parseContextWindowToNumber("4K"),
-    inputCost: 0.0015,
-    outputCost: 0.002,
-    speed: 130,
-    reasoning: 70,
-    coding: 65,
-    creative: 70,
-    multimodal: false,
-    languages: 40,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4.1", // Updated from table: GPT-4.1 (2025-04-14)
-    provider: "OpenAI",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("1M"),
-    inputCost: 0.5, // Note: This cost is high, might be an error from PriceCalculator if not $0.5/K
-    outputCost: 0.008,
-    speed: 80, // Default or preserved
-    reasoning: 96, // Default or preserved
-    coding: 93, // Default or preserved
-    creative: 94, // Default or preserved
-    multimodal: true,
-    languages: 50, // Default or preserved
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4.1 mini", // Updated from table: GPT-4.1 mini (2025-04-14)
-    provider: "OpenAI",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("1M"),
-    inputCost: 0.1,
-    outputCost: 0.0016,
-    speed: 110, // Default or preserved
-    reasoning: 85, // Default or preserved
-    coding: 88, // Default or preserved
-    creative: 82, // Default or preserved
-    multimodal: true,
-    languages: 50, // Default or preserved
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4.1 nano",
-    provider: "OpenAI",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("1M"),
-    inputCost: 0.025, // Existing, table N/A
-    outputCost: 0.0004, // Existing, table N/A
-    speed: 140,
-    reasoning: 80,
-    coding: 82,
-    creative: 78,
-    multimodal: true,
-    languages: 50,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "o3", // Updated from table: o3 (2025-04-16)
-    provider: "OpenAI",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.01, // Updated from 2.5
-    outputCost: 0.04, // Updated from 0.04
-    speed: 70,
-    reasoning: 97,
-    coding: 91,
-    creative: 96,
-    multimodal: true,
-    languages: 50,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "o4-mini",
-    provider: "OpenAI",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.0011, // Updated from 0.275
-    outputCost: 0.0044,
-    speed: 100,
-    reasoning: 86,
-    coding: 89,
-    creative: 84,
-    multimodal: true,
-    languages: 50,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-o4-mini",
-    provider: "OpenAI",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.3, // Note: This specific model was not in the new table; o4-mini was.
-    outputCost: 0.0024,
-    speed: 115,
-    reasoning: 84,
-    coding: 87,
-    creative: 81,
-    multimodal: true,
-    languages: 50,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "GPT-4.5", // New from table
-    provider: "OpenAI",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.075,
-    outputCost: 0.15,
-    speed: 70, // Default
-    reasoning: 80, // Default (GPQA was 69.5%)
-    coding: 80, // Default (HumanEval was 88.0%)
-    creative: 80, // Default
-    multimodal: true, // Assumed
-    languages: 50, // Default
-    category: "flagship", // Assumed
-    license: "Proprietary",
-  },
-  {
-    name: "o1-pro", // New from table
-    provider: "OpenAI",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0, // Table: -
-    outputCost: 0, // Table: -
-    speed: 70, // Default
-    reasoning: 79, // Default (GPQA was 79.0%)
-    coding: 70, // Default
-    creative: 70, // Default
-    multimodal: true, // Assumed
-    languages: 50, // Default
-    category: "flagship", // Assumed
-    license: "Proprietary",
-  },
-  {
-    name: "o1", // New from table: o1 (2024-12-17)
-    provider: "OpenAI",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.015,
-    outputCost: 0.06,
-    speed: 70, // Default
-    reasoning: 78, // Default (GPQA was 78.0%)
-    coding: 88, // Default (HumanEval was 88.1%)
-    creative: 70, // Default
-    multimodal: true, // Assumed
-    languages: 50, // Default
-    category: "flagship", // Assumed
-    license: "Proprietary",
-  },
-  {
-    name: "o3-mini", // New from table
-    provider: "OpenAI",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.0011,
-    outputCost: 0.0044,
-    speed: 90, // Default
-    reasoning: 77, // Default (GPQA was 77.2%)
-    coding: 70, // Default
-    creative: 70, // Default
-    multimodal: true, // Assumed
-    languages: 50, // Default
-    category: "efficient", // Assumed
-    license: "Proprietary",
-  },
-  {
-    name: "o1-preview", // New from table
-    provider: "OpenAI",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.015,
-    outputCost: 0.06,
-    speed: 70, // Default
-    reasoning: 73, // Default (GPQA was 73.3%)
-    coding: 70, // Default
-    creative: 70, // Default
-    multimodal: true, // Assumed
-    languages: 50, // Default
-    category: "flagship", // Assumed
-    license: "Proprietary",
-  },
-  {
-    name: "o1-mini", // New from table
-    provider: "OpenAI",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("128K"),
-    inputCost: 0.003,
-    outputCost: 0.012,
-    speed: 100, // Default
-    reasoning: 60, // Default (GPQA was 60.0%)
-    coding: 92, // Default (HumanEval was 92.4%)
-    creative: 70, // Default
-    multimodal: true, // Assumed
-    languages: 50, // Default
-    category: "efficient", // Assumed
-    license: "Proprietary",
-  },
+const mapAnthropicJsonToModelData = (
+  model: (typeof anthropicModelsFromJson)[0]
+): ModelData => ({
+  name: model.name,
+  provider: model.provider,
+  parameters: model.parameters, // This field exists in the JSON
+  contextWindow: parseContextWindowToNumber(model.contextWindow), // Pass number directly
+  inputCost: model.costPer1kTokens?.input || 0,
+  outputCost: model.costPer1kTokens?.output || 0,
+  speed: model.speed,
+  reasoning: model.reasoning,
+  coding: model.coding,
+  creative: model.creative,
+  multimodal: model.multimodal,
+  languages: model.languages,
+  category: model.category,
+  license: model.license,
+});
 
-  // Anthropic Models
-  {
-    name: "Claude 3 Opus",
-    provider: "Anthropic",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.015,
-    outputCost: 0.075,
-    speed: 45,
-    reasoning: 98,
-    coding: 88,
-    creative: 95,
-    multimodal: true,
-    languages: 40,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude 3 Sonnet",
-    provider: "Anthropic",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.003,
-    outputCost: 0.015,
-    speed: 75,
-    reasoning: 90,
-    coding: 92,
-    creative: 85,
-    multimodal: true,
-    languages: 40,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude 3 Haiku",
-    provider: "Anthropic",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.00025,
-    outputCost: 0.00125,
-    speed: 150,
-    reasoning: 78,
-    coding: 75,
-    creative: 70,
-    multimodal: true,
-    languages: 40,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude 2.1",
-    provider: "Anthropic",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.008,
-    outputCost: 0.024,
-    speed: 40,
-    reasoning: 85,
-    coding: 70,
-    creative: 80,
-    multimodal: true,
-    languages: 30,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude 2.0",
-    provider: "Anthropic",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("100K"),
-    inputCost: 0.008,
-    outputCost: 0.024,
-    speed: 35,
-    reasoning: 84,
-    coding: 68,
-    creative: 78,
-    multimodal: true,
-    languages: 30,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude Instant 1.2",
-    provider: "Anthropic",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("100K"),
-    inputCost: 0.0008,
-    outputCost: 0.0024,
-    speed: 100,
-    reasoning: 70,
-    coding: 60,
-    creative: 65,
-    multimodal: true,
-    languages: 30,
-    category: "efficient",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude Opus 4", // Updated from table: Claude Opus 4 (20250514)
-    provider: "Anthropic",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.015,
-    outputCost: 0.075,
-    speed: 50, // Preserved existing for "Claude Opus 4"
-    reasoning: 99, // Preserved existing for "Claude Opus 4" (GPQA was 83.3%)
-    coding: 90, // Preserved existing
-    creative: 97, // Preserved existing
-    multimodal: true,
-    languages: 40,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude Sonnet 4", // Updated from table: Claude Sonnet 4 (20250514)
-    provider: "Anthropic",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.003,
-    outputCost: 0.015,
-    speed: 80, // Preserved existing for "Claude Sonnet 4"
-    reasoning: 94, // Preserved existing for "Claude Sonnet 4" (GPQA was 83.8%)
-    coding: 96, // Preserved existing
-    creative: 90, // Preserved existing
-    multimodal: true,
-    languages: 40,
-    category: "flagship",
-    license: "Proprietary",
-  },
-  {
-    name: "Claude 3.7 Sonnet", // New from table: Claude 3.7 Sonnet (20250219)
-    provider: "Anthropic",
-    parameters: "Unknown", // Table: -
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0, // Table: N/A
-    outputCost: 0, // Table: N/A
-    speed: 75, // Default, matches Claude 3.5 Sonnet
-    reasoning: 80, // Default
-    coding: 80, // Default
-    creative: 80, // Default
-    multimodal: true, // Assumed
-    languages: 40, // Default
-    category: "flagship", // Assumed
-    license: "Proprietary",
-  },
-  {
-    name: "Claude 3.5 Sonnet", // Updated from table: Claude 3.5 Sonnet (20241022)
-    provider: "Anthropic",
-    parameters: "Unknown",
-    contextWindow: parseContextWindowToNumber("200K"),
-    inputCost: 0.003,
-    outputCost: 0.015,
-    speed: 75, // Preserved existing good scores
-    reasoning: 93, // Preserved existing (GPQA was 67.2%)
-    coding: 95, // Preserved existing (HumanEval was 93.7%)
-    creative: 88, // Preserved existing
-    multimodal: true,
-    languages: 40,
-    category: "flagship",
-    license: "Proprietary",
-  },
+const anthropicModelData: ModelData[] = anthropicModelsFromJson.map(
+  mapAnthropicJsonToModelData
+);
 
+const mapOpenAiJsonToModelData = (
+  model: (typeof openAiModelsFromJson)[0]
+): ModelData => ({
+  name: model.name,
+  provider: model.provider,
+  parameters: model.parameters,
+  contextWindow: parseContextWindowToNumber(model.contextWindow), // Pass number directly
+  inputCost: model.costPer1kTokens?.input || 0,
+  outputCost: model.costPer1kTokens?.output || 0,
+  speed: model.speed,
+  reasoning: model.reasoning,
+  coding: model.coding,
+  creative: model.creative,
+  multimodal: model.multimodal,
+  languages: model.languages,
+  category: model.category,
+  license: model.license,
+});
+
+const openAiModelData: ModelData[] = openAiModelsFromJson.map(
+  mapOpenAiJsonToModelData
+);
+
+const otherProvidersModelData: ModelData[] = [
   // Google Models
   {
     name: "Gemini 1.5 Pro",
@@ -1390,6 +940,12 @@ const modelData: ModelData[] = [
     category: "efficient", // Assumed
     license: "Unknown",
   },
+];
+
+const modelData: ModelData[] = [
+  ...otherProvidersModelData,
+  ...anthropicModelData,
+  ...openAiModelData,
 ];
 
 // Remove duplicate model entries by name, keeping the one that appeared first (likely from initial list or more specific)
