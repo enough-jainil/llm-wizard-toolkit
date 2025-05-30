@@ -9,7 +9,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { GitCompare } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { GitCompare, Search, X } from "lucide-react";
 import {
   uniqueModelComparisonData,
   ModelData,
@@ -34,18 +35,41 @@ const ModelComparison = () => {
   const [sortBy, setSortBy] = useState<keyof ModelData>("reasoning");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterProviders, setFilterProviders] = useState<string[]>(["all"]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const allProviders = [
-    "all",
-    ...Array.from(new Set(uniqueModelComparisonData.map((m) => m.provider))),
-  ].sort();
+    "All",
+    ...Array.from(
+      new Set(uniqueModelComparisonData.map((m) => m.provider))
+    ).sort(),
+  ];
 
-  const filteredModels = uniqueModelComparisonData.filter(
-    (model) =>
-      (filterCategory === "all" || model.category === filterCategory) &&
-      (filterProviders.includes("all") ||
-        filterProviders.includes(model.provider))
-  );
+  const filteredModels = uniqueModelComparisonData.filter((model) => {
+    // Existing filters
+    const categoryMatch =
+      filterCategory === "all" || model.category === filterCategory;
+    const providerMatch =
+      filterProviders.includes("all") ||
+      filterProviders.includes(model.provider);
+
+    // Search filter
+    let searchMatch = true;
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      searchMatch =
+        model.name.toLowerCase().includes(searchLower) ||
+        model.provider.toLowerCase().includes(searchLower) ||
+        model.category.toLowerCase().includes(searchLower) ||
+        model.parameters.toLowerCase().includes(searchLower) ||
+        (model.license && model.license.toLowerCase().includes(searchLower));
+    }
+
+    return categoryMatch && providerMatch && searchMatch;
+  });
+
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
 
   const sortedModels = [...filteredModels].sort((a, b) => {
     if (typeof a[sortBy] === "number" && typeof b[sortBy] === "number") {
@@ -98,8 +122,6 @@ const ModelComparison = () => {
         return "bg-teal-100 text-teal-800"; // Added for Microsoft
       case "Alibaba Cloud":
         return "bg-purple-100 text-purple-800"; // Re-using purple, or choose new
-      case "Unknown":
-        return "bg-gray-200 text-gray-700"; // Slightly different for Unknown provider
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -136,7 +158,37 @@ const ModelComparison = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 space-y-2">
+          <div className="mb-4 space-y-4">
+            {/* Search Input */}
+            <div className="space-y-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search models by name, provider, category, parameters, or license..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-10"
+                />
+                {searchTerm && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                    onClick={clearSearch}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+              {searchTerm && (
+                <div className="text-xs text-gray-600">
+                  Showing {filteredModels.length} of{" "}
+                  {uniqueModelComparisonData.length} models
+                </div>
+              )}
+            </div>
+
+            {/* Category and Provider Filters */}
             <div className="flex flex-wrap gap-2">
               <span className="text-sm font-medium mr-2 self-center">
                 Category:
@@ -163,7 +215,7 @@ const ModelComparison = () => {
                 Efficient
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2">
               <span className="text-sm font-medium mr-2 self-center">
                 Provider:
               </span>
@@ -171,11 +223,15 @@ const ModelComparison = () => {
                 <Button
                   key={provider}
                   variant={
-                    filterProviders.includes(provider) ? "default" : "outline"
+                    filterProviders.includes(
+                      provider.toLowerCase() === "all" ? "all" : provider
+                    )
+                      ? "default"
+                      : "outline"
                   }
                   size="sm"
                   onClick={() => {
-                    if (provider === "all") {
+                    if (provider === "All") {
                       setFilterProviders(["all"]);
                     } else {
                       setFilterProviders((prev) => {
@@ -201,41 +257,53 @@ const ModelComparison = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {sortedModels.map((model) => (
-              <div
-                key={model.name}
-                className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                  selectedModels.includes(model.name)
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-                onClick={() => toggleModelSelection(model.name)}
-              >
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    checked={selectedModels.includes(model.name)}
-                    onChange={() => {}}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold">{model.name}</h4>
-                      <div className="flex gap-1">
-                        <Badge className={getProviderColor(model.provider)}>
-                          {model.provider}
-                        </Badge>
-                        <Badge className={getCategoryColor(model.category)}>
-                          {model.category}
-                        </Badge>
+            {filteredModels.length === 0 ? (
+              <div className="col-span-2 text-center py-8 text-gray-500">
+                <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p>No models found</p>
+                <p className="text-sm">
+                  {searchTerm
+                    ? `Try adjusting your search term or filters`
+                    : "Try adjusting your filters"}
+                </p>
+              </div>
+            ) : (
+              filteredModels.map((model) => (
+                <div
+                  key={model.name}
+                  className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                    selectedModels.includes(model.name)
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() => toggleModelSelection(model.name)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={selectedModels.includes(model.name)}
+                      onChange={() => {}}
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold">{model.name}</h4>
+                        <div className="flex gap-1">
+                          <Badge className={getProviderColor(model.provider)}>
+                            {model.provider}
+                          </Badge>
+                          <Badge className={getCategoryColor(model.category)}>
+                            {model.category}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      {model.parameters} •{" "}
-                      {model.contextWindow.toLocaleString()} context
+                      <div className="text-xs text-gray-600 mt-1">
+                        {model.parameters} •{" "}
+                        {model.contextWindow.toLocaleString()} context
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="mt-4 text-sm text-gray-600">
