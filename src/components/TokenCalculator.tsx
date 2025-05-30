@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -15,9 +18,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Hash,
   FileText,
@@ -29,7 +42,12 @@ import {
   Calculator,
   AlertCircle,
   CheckCircle,
+  Search,
+  X,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { get_encoding, encoding_for_model, Tiktoken } from "tiktoken";
 import {
   uniqueTokenizerData,
@@ -80,6 +98,9 @@ const TokenCalculator = () => {
   const [text, setText] = useState("");
   const [selectedTokenizer, setSelectedTokenizer] = useState("GPT-4o"); // Initialize with a valid model name from the new list
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisEntry[]>([]);
+  const [historySearchTerm, setHistorySearchTerm] = useState<string>("");
+  const [isTokenizerSelectOpen, setIsTokenizerSelectOpen] =
+    useState<boolean>(false);
   const [multimodalContent, setMultimodalContent] = useState({
     imageCount: 0,
     imageSizeCategory: "small" as "small" | "large",
@@ -91,6 +112,25 @@ const TokenCalculator = () => {
   const [expectedOutputWords, setExpectedOutputWords] = useState(0);
 
   const currentTokenizer = tokenizers.find((t) => t.name === selectedTokenizer);
+
+  const clearHistorySearch = () => {
+    setHistorySearchTerm("");
+  };
+
+  // Filter analysis history based on search term
+  const filteredAnalysisHistory = analysisHistory.filter((analysis) => {
+    if (!historySearchTerm) return true;
+
+    const searchLower = historySearchTerm.toLowerCase();
+    return (
+      analysis.text.toLowerCase().includes(searchLower) ||
+      analysis.tokenizer.toLowerCase().includes(searchLower) ||
+      tokenizers
+        .find((t) => t.name === analysis.tokenizer)
+        ?.provider.toLowerCase()
+        .includes(searchLower)
+    );
+  });
 
   // Enhanced token calculation with provider-specific accuracy
   const metrics = useMemo(() => {
@@ -370,91 +410,122 @@ const TokenCalculator = () => {
             {/* Tokenizer Selection */}
             <div className="space-y-2">
               <Label htmlFor="tokenizer">AI Model / Tokenizer</Label>
-              <Select
-                value={selectedTokenizer}
-                onValueChange={setSelectedTokenizer}
+              <Popover
+                open={isTokenizerSelectOpen}
+                onOpenChange={setIsTokenizerSelectOpen}
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {tokenizers.map((tokenizer) => (
-                    <SelectItem key={tokenizer.name} value={tokenizer.name}>
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <span>{tokenizer.name}</span>
-                          <Badge
-                            className={getProviderColor(tokenizer.provider)}
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isTokenizerSelectOpen}
+                    className="w-full justify-between"
+                  >
+                    {selectedTokenizer
+                      ? tokenizers.find(
+                          (tokenizer) => tokenizer.name === selectedTokenizer
+                        )?.name
+                      : "Choose a tokenizer..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search tokenizers by name, provider, or description..." />
+                    <CommandList>
+                      <CommandEmpty>No tokenizers found.</CommandEmpty>
+                      <CommandGroup>
+                        {tokenizers.map((tokenizer) => (
+                          <CommandItem
+                            key={tokenizer.name}
+                            value={`${tokenizer.name} ${tokenizer.provider} ${tokenizer.description} ${tokenizer.tokenizerType}`}
+                            onSelect={() => {
+                              setSelectedTokenizer(tokenizer.name);
+                              setIsTokenizerSelectOpen(false);
+                            }}
                           >
-                            {tokenizer.provider}
-                          </Badge>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Enhanced Tokenizer Info */}
-              {currentTokenizer && (
-                <div className="text-xs text-gray-600 space-y-1 p-3 bg-gray-50 rounded-lg">
-                  <p>
-                    <strong>Description:</strong> {currentTokenizer.description}
-                  </p>
-                  <p>
-                    <strong>Type:</strong> {currentTokenizer.tokenizerType}
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <p>
-                      <strong>Context:</strong>{" "}
-                      {currentTokenizer.contextWindow.toLocaleString()} tokens
-                    </p>
-                    <p>
-                      <strong>Output:</strong>{" "}
-                      {currentTokenizer.outputLimit.toLocaleString()} tokens
-                    </p>
-                  </div>
-                  {currentTokenizer.costPer1kTokens && (
-                    <p>
-                      <strong>Cost:</strong> $
-                      {currentTokenizer.costPer1kTokens.input}/1k input, $
-                      {currentTokenizer.costPer1kTokens.output}/1k output
-                    </p>
-                  )}
-                  {currentTokenizer.costPer1kTokens && (
-                    <p className="text-xs text-gray-500">
-                      <strong>(Per 1M):</strong> $
-                      {(currentTokenizer.costPer1kTokens.input * 1000).toFixed(
-                        2
-                      )}
-                      /1M input, $
-                      {(currentTokenizer.costPer1kTokens.output * 1000).toFixed(
-                        2
-                      )}
-                      /1M output
-                    </p>
-                  )}
-                  <div className="flex gap-2 mt-2">
-                    {currentTokenizer.imageTokens && (
-                      <Badge variant="outline">
-                        Images: {currentTokenizer.imageTokens.small}-
-                        {currentTokenizer.imageTokens.large} tokens
-                      </Badge>
-                    )}
-                    {currentTokenizer.videoTokensPerSecond ? (
-                      <Badge variant="outline">
-                        Video: {currentTokenizer.videoTokensPerSecond}/sec
-                      </Badge>
-                    ) : null}
-                    {currentTokenizer.audioTokensPerSecond ? (
-                      <Badge variant="outline">
-                        Audio: {currentTokenizer.audioTokensPerSecond}/sec
-                      </Badge>
-                    ) : null}
-                  </div>
-                </div>
-              )}
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedTokenizer === tokenizer.name
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <div className="flex items-center justify-between w-full">
+                              <span>{tokenizer.name}</span>
+                              <Badge
+                                className={getProviderColor(tokenizer.provider)}
+                              >
+                                {tokenizer.provider}
+                              </Badge>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
+
+            {/* Enhanced Tokenizer Info */}
+            {currentTokenizer && (
+              <div className="text-xs text-gray-600 space-y-1 p-3 bg-gray-50 rounded-lg">
+                <p>
+                  <strong>Description:</strong> {currentTokenizer.description}
+                </p>
+                <p>
+                  <strong>Type:</strong> {currentTokenizer.tokenizerType}
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <p>
+                    <strong>Context:</strong>{" "}
+                    {currentTokenizer.contextWindow.toLocaleString()} tokens
+                  </p>
+                  <p>
+                    <strong>Output:</strong>{" "}
+                    {currentTokenizer.outputLimit.toLocaleString()} tokens
+                  </p>
+                </div>
+                {currentTokenizer.costPer1kTokens && (
+                  <p>
+                    <strong>Cost:</strong> $
+                    {currentTokenizer.costPer1kTokens.input}/1k input, $
+                    {currentTokenizer.costPer1kTokens.output}/1k output
+                  </p>
+                )}
+                {currentTokenizer.costPer1kTokens && (
+                  <p className="text-xs text-gray-500">
+                    <strong>(Per 1M):</strong> $
+                    {(currentTokenizer.costPer1kTokens.input * 1000).toFixed(2)}
+                    /1M input, $
+                    {(currentTokenizer.costPer1kTokens.output * 1000).toFixed(
+                      2
+                    )}
+                    /1M output
+                  </p>
+                )}
+                <div className="flex gap-2 mt-2">
+                  {currentTokenizer.imageTokens && (
+                    <Badge variant="outline">
+                      Images: {currentTokenizer.imageTokens.small}-
+                      {currentTokenizer.imageTokens.large} tokens
+                    </Badge>
+                  )}
+                  {currentTokenizer.videoTokensPerSecond ? (
+                    <Badge variant="outline">
+                      Video: {currentTokenizer.videoTokensPerSecond}/sec
+                    </Badge>
+                  ) : null}
+                  {currentTokenizer.audioTokensPerSecond ? (
+                    <Badge variant="outline">
+                      Audio: {currentTokenizer.audioTokensPerSecond}/sec
+                    </Badge>
+                  ) : null}
+                </div>
+              </div>
+            )}
 
             {/* Multimodal Content Inputs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg">
@@ -831,15 +902,51 @@ const TokenCalculator = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {analysisHistory.length > 0 && (
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search analysis history..."
+                  value={historySearchTerm}
+                  onChange={(e) => setHistorySearchTerm(e.target.value)}
+                  className="pl-10 pr-10"
+                />
+                {historySearchTerm && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                    onClick={clearHistorySearch}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+              {historySearchTerm && (
+                <div className="text-xs text-gray-600 mt-2">
+                  Showing {filteredAnalysisHistory.length} of{" "}
+                  {analysisHistory.length} analyses
+                </div>
+              )}
+            </div>
+          )}
+
           {analysisHistory.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               <Calculator className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p>No analyses yet</p>
               <p className="text-sm">Save an analysis to see it here</p>
             </div>
+          ) : filteredAnalysisHistory.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No analyses found</p>
+              <p className="text-sm">Try adjusting your search term</p>
+            </div>
           ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {analysisHistory.map((analysis) => (
+              {filteredAnalysisHistory.map((analysis) => (
                 <div
                   key={analysis.id}
                   className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"

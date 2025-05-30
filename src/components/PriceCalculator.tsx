@@ -8,16 +8,29 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Calculator, TrendingUp } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  DollarSign,
+  Calculator,
+  TrendingUp,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { modelPricingData } from "../../models/modelDataConverter"; // Import centralized data
 
 interface ModelPricing {
@@ -48,6 +61,7 @@ const PriceCalculator = () => {
   const [inputTokens, setInputTokens] = useState<string>("1000");
   const [outputTokens, setOutputTokens] = useState<string>("500");
   const [calculations, setCalculations] = useState<CalculationEntry[]>([]);
+  const [isModelSelectOpen, setIsModelSelectOpen] = useState<boolean>(false);
 
   const currentModel = modelPricing.find((m) => m.name === selectedModel);
 
@@ -135,25 +149,65 @@ const PriceCalculator = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="model">Select Model</Label>
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an LLM model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {modelPricing.map((model) => (
-                    <SelectItem key={model.name} value={model.name}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{model.name}</span>
-                        <Badge
-                          className={`ml-2 ${getProviderColor(model.provider)}`}
-                        >
-                          {model.provider}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover
+                open={isModelSelectOpen}
+                onOpenChange={setIsModelSelectOpen}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isModelSelectOpen}
+                    className="w-full justify-between"
+                  >
+                    {selectedModel
+                      ? modelPricing.find(
+                          (model) => model.name === selectedModel
+                        )?.name
+                      : "Choose an LLM model..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search models by name, provider, or category..." />
+                    <CommandList>
+                      <CommandEmpty>No models found.</CommandEmpty>
+                      <CommandGroup>
+                        {modelPricing.map((model) => (
+                          <CommandItem
+                            key={model.name}
+                            value={`${model.name} ${model.provider} ${model.category}`}
+                            onSelect={() => {
+                              setSelectedModel(model.name);
+                              setIsModelSelectOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedModel === model.name
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <div className="flex items-center justify-between w-full">
+                              <span>{model.name}</span>
+                              <Badge
+                                className={`ml-2 ${getProviderColor(
+                                  model.provider
+                                )}`}
+                              >
+                                {model.provider}
+                              </Badge>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
