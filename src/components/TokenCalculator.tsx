@@ -52,6 +52,7 @@ interface TokenizerInfo {
     input: number;
     output: number;
   };
+  license?: string;
 }
 
 interface AnalysisEntry {
@@ -100,13 +101,14 @@ const tokenizers: TokenizerInfo[] = [
     description:
       "OpenAI's most advanced model. Variant: GPT-4o. Costs per 1K tokens.",
     contextWindow: parseContextWindow("128K"),
-    outputLimit: 16384, // increased for GPT-4o
-    imageTokens: { small: 85, large: 170 }, // Standard for o200k_base vision
+    outputLimit: 16384,
+    imageTokens: { small: 85, large: 170 },
     imageTokenizationMode: "fixed",
-    videoTokensPerSecond: 0, // Placeholder, OpenAI vision models typically don't charge per second for video yet
-    audioTokensPerSecond: 0, // Placeholder
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 0.005, output: 0.02 },
+    costPer1kTokens: { input: 0.005, output: 0.02 }, // Existing, table N/A
+    license: "Proprietary",
   },
   {
     name: "GPT-4o (2024-08-06)",
@@ -123,6 +125,7 @@ const tokenizers: TokenizerInfo[] = [
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
     costPer1kTokens: { input: 0.0025, output: 0.01 },
+    license: "Proprietary",
   },
   {
     name: "GPT-4o Mini",
@@ -133,12 +136,13 @@ const tokenizers: TokenizerInfo[] = [
       "OpenAI's efficient and fast GPT-4o variant. Costs per 1K tokens.",
     contextWindow: parseContextWindow("128K"),
     outputLimit: 16384,
-    imageTokens: { small: 85, large: 170 }, // Assuming same image capabilities as full GPT-4o
+    imageTokens: { small: 85, large: 170 },
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
     costPer1kTokens: { input: 0.00015, output: 0.0006 },
+    license: "Proprietary",
   },
   {
     name: "GPT-4o (2024-05-13)",
@@ -155,6 +159,7 @@ const tokenizers: TokenizerInfo[] = [
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
     costPer1kTokens: { input: 0.005, output: 0.015 },
+    license: "Proprietary",
   },
   {
     name: "GPT-4 Turbo (2024-04-09)",
@@ -163,13 +168,14 @@ const tokenizers: TokenizerInfo[] = [
     avgCharsPerToken: 4,
     description: "OpenAI's powerful and fast GPT-4 Turbo. Costs per 1K tokens.",
     contextWindow: parseContextWindow("128K"),
-    outputLimit: 4096, // Standard for older Turbo
-    imageTokens: { small: 85, large: 170 }, // GPT-4 Turbo has vision
+    outputLimit: 4096,
+    imageTokens: { small: 85, large: 170 },
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
     costPer1kTokens: { input: 0.01, output: 0.03 },
+    license: "Proprietary",
   },
   {
     name: "GPT-4",
@@ -179,12 +185,13 @@ const tokenizers: TokenizerInfo[] = [
     description: "OpenAI's foundational GPT-4 model. Costs per 1K tokens.",
     contextWindow: parseContextWindow("8K"),
     outputLimit: 4096,
-    imageTokens: { small: 85, large: 170 }, // GPT-4 has vision
+    imageTokens: { small: 85, large: 170 },
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
     costPer1kTokens: { input: 0.03, output: 0.06 },
+    license: "Proprietary",
   },
   {
     name: "GPT-4-32K",
@@ -195,12 +202,13 @@ const tokenizers: TokenizerInfo[] = [
       "OpenAI's GPT-4 model with a larger context window. Costs per 1K tokens.",
     contextWindow: parseContextWindow("32K"),
     outputLimit: 4096,
-    imageTokens: { small: 85, large: 170 }, // GPT-4 has vision
+    imageTokens: { small: 85, large: 170 },
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
     costPer1kTokens: { input: 0.06, output: 0.12 },
+    license: "Proprietary",
   },
   {
     name: "GPT-3.5 Turbo (0125)",
@@ -215,6 +223,7 @@ const tokenizers: TokenizerInfo[] = [
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
     costPer1kTokens: { input: 0.0005, output: 0.0015 },
+    license: "Proprietary",
   },
   {
     name: "GPT-3.5 Turbo Instruct",
@@ -229,36 +238,39 @@ const tokenizers: TokenizerInfo[] = [
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken cl100k_base)",
     costPer1kTokens: { input: 0.0015, output: 0.002 },
+    license: "Proprietary",
   },
   {
-    name: "GPT-4.1",
+    name: "GPT-4.1", // Updated from table: GPT-4.1 (2025-04-14)
     provider: "OpenAI",
     avgTokensPerWord: 1.3,
     avgCharsPerToken: 4,
     description: "OpenAI's GPT-4.1 model. Costs per 1K tokens.",
-    contextWindow: parseContextWindow("1M"),
-    outputLimit: 16384, // Assuming larger output for 1M context
-    imageTokenizationMode: "fixed", // Assuming vision capabilities
-    imageTokens: { small: 85, large: 170 },
-    videoTokensPerSecond: 0,
-    audioTokensPerSecond: 0,
-    tokenizerType: "BPE (tiktoken o200k_base)", // Likely new encoding
-    costPer1kTokens: { input: 0.5, output: 0.008 },
-  },
-  {
-    name: "GPT-4.1 mini",
-    provider: "OpenAI",
-    avgTokensPerWord: 1.3,
-    avgCharsPerToken: 4,
-    description: "OpenAI's efficient GPT-4.1 mini. Costs per 1K tokens.",
-    contextWindow: parseContextWindow("1M"),
+    contextWindow: parseContextWindow("1048K"), // Updated from 1M (1,047,576)
     outputLimit: 16384,
-    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
     imageTokens: { small: 85, large: 170 },
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 0.1, output: 0.0016 },
+    costPer1kTokens: { input: 0.002, output: 0.008 }, // Updated from 0.5 / 0.008
+    license: "Proprietary",
+  },
+  {
+    name: "GPT-4.1 mini", // Updated from table: GPT-4.1 mini (2025-04-14)
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI's efficient GPT-4.1 mini. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("1048K"), // Updated from 1M (1,047,576)
+    outputLimit: 16384,
+    imageTokenizationMode: "fixed",
+    imageTokens: { small: 85, large: 170 },
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)",
+    costPer1kTokens: { input: 0.0004, output: 0.0016 }, // Updated from 0.1 / 0.0016
+    license: "Proprietary",
   },
   {
     name: "GPT-4.1 nano",
@@ -268,27 +280,29 @@ const tokenizers: TokenizerInfo[] = [
     description: "OpenAI's smallest GPT-4.1 nano. Costs per 1K tokens.",
     contextWindow: parseContextWindow("1M"),
     outputLimit: 16384,
-    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
     imageTokens: { small: 85, large: 170 },
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 0.025, output: 0.0004 },
+    costPer1kTokens: { input: 0.025, output: 0.0004 }, // Existing, table N/A
+    license: "Proprietary",
   },
   {
-    name: "o3",
+    name: "o3", // Updated from table: o3 (2025-04-16)
     provider: "OpenAI",
     avgTokensPerWord: 1.3,
     avgCharsPerToken: 4,
     description: "OpenAI o3 model. Costs per 1K tokens.",
     contextWindow: parseContextWindow("200K"),
-    outputLimit: 16384, // Assuming similar to GPT-4o
-    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    outputLimit: 16384,
+    imageTokenizationMode: "fixed",
     imageTokens: { small: 85, large: 170 },
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 2.5, output: 0.04 },
+    costPer1kTokens: { input: 0.01, output: 0.04 }, // Updated from 2.5 / 0.04
+    license: "Proprietary",
   },
   {
     name: "o4-mini",
@@ -298,27 +312,125 @@ const tokenizers: TokenizerInfo[] = [
     description: "OpenAI o4-mini model. Costs per 1K tokens.",
     contextWindow: parseContextWindow("200K"),
     outputLimit: 16384,
-    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
     imageTokens: { small: 85, large: 170 },
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 0.275, output: 0.0044 },
+    costPer1kTokens: { input: 0.0011, output: 0.0044 }, // Updated from 0.275 / 0.0044
+    license: "Proprietary",
   },
   {
-    name: "GPT-o4-mini", // Distinct from o4-mini as per PriceCalculator
+    name: "GPT-o4-mini",
     provider: "OpenAI",
     avgTokensPerWord: 1.3,
     avgCharsPerToken: 4,
     description: "OpenAI GPT-o4-mini model. Costs per 1K tokens.",
     contextWindow: parseContextWindow("128K"),
     outputLimit: 16384,
-    imageTokenizationMode: "fixed", // Assuming vision capabilities
+    imageTokenizationMode: "fixed",
     imageTokens: { small: 85, large: 170 },
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (tiktoken o200k_base)",
-    costPer1kTokens: { input: 0.3, output: 0.0024 },
+    costPer1kTokens: { input: 0.3, output: 0.0024 }, // Not in new table; o4-mini was.
+    license: "Proprietary",
+  },
+  {
+    name: "GPT-4.5", // New from table
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI GPT-4.5 model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 16384, // Assumed
+    imageTokenizationMode: "fixed", // Assumed
+    imageTokens: { small: 85, large: 170 }, // Assumed
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)", // Assumed
+    costPer1kTokens: { input: 0.075, output: 0.15 },
+    license: "Proprietary",
+  },
+  {
+    name: "o1-pro", // New from table
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI o1-pro model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 16384, // Assumed
+    imageTokenizationMode: "fixed", // Assumed
+    imageTokens: { small: 85, large: 170 }, // Assumed
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)", // Assumed
+    costPer1kTokens: { input: 0, output: 0 }, // Table: -
+    license: "Proprietary",
+  },
+  {
+    name: "o1", // New from table: o1 (2024-12-17)
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI o1 model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 16384, // Assumed
+    imageTokenizationMode: "fixed", // Assumed
+    imageTokens: { small: 85, large: 170 }, // Assumed
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)", // Assumed
+    costPer1kTokens: { input: 0.015, output: 0.06 },
+    license: "Proprietary",
+  },
+  {
+    name: "o3-mini", // New from table
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI o3-mini model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 16384, // Assumed
+    imageTokenizationMode: "fixed", // Assumed
+    imageTokens: { small: 85, large: 170 }, // Assumed
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)", // Assumed
+    costPer1kTokens: { input: 0.0011, output: 0.0044 },
+    license: "Proprietary",
+  },
+  {
+    name: "o1-preview", // New from table
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI o1-preview model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 16384, // Assumed
+    imageTokenizationMode: "fixed", // Assumed
+    imageTokens: { small: 85, large: 170 }, // Assumed
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)", // Assumed
+    costPer1kTokens: { input: 0.015, output: 0.06 },
+    license: "Proprietary",
+  },
+  {
+    name: "o1-mini", // New from table
+    provider: "OpenAI",
+    avgTokensPerWord: 1.3,
+    avgCharsPerToken: 4,
+    description: "OpenAI o1-mini model. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("128K"),
+    outputLimit: 16384, // Assumed
+    imageTokenizationMode: "fixed", // Assumed
+    imageTokens: { small: 85, large: 170 }, // Assumed
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (tiktoken o200k_base)", // Assumed
+    costPer1kTokens: { input: 0.003, output: 0.012 },
+    license: "Proprietary",
   },
 
   // Anthropic Models from PriceCalculator.tsx
@@ -334,8 +446,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.015, output: 0.075 },
+    license: "Proprietary",
   },
   {
     name: "Claude 3 Sonnet",
@@ -349,8 +462,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.003, output: 0.015 },
+    license: "Proprietary",
   },
   {
     name: "Claude 3 Haiku",
@@ -364,8 +478,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.00025, output: 0.00125 },
+    license: "Proprietary",
   },
   {
     name: "Claude 2.1",
@@ -379,8 +494,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.008, output: 0.024 },
+    license: "Proprietary",
   },
   {
     name: "Claude 2.0",
@@ -394,8 +510,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.008, output: 0.024 },
+    license: "Proprietary",
   },
   {
     name: "Claude Instant 1.2",
@@ -409,11 +526,12 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.0008, output: 0.0024 },
+    license: "Proprietary",
   },
   {
-    name: "Claude Opus 4",
+    name: "Claude Opus 4", // Updated from table: Claude Opus 4 (20250514)
     provider: "Anthropic",
     avgTokensPerWord: 1.25,
     avgCharsPerToken: 3.2,
@@ -424,11 +542,12 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.015, output: 0.075 },
+    license: "Proprietary",
   },
   {
-    name: "Claude Sonnet 4",
+    name: "Claude Sonnet 4", // Updated from table: Claude Sonnet 4 (20250514)
     provider: "Anthropic",
     avgTokensPerWord: 1.25,
     avgCharsPerToken: 3.2,
@@ -439,23 +558,41 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.003, output: 0.015 },
+    license: "Proprietary",
   },
   {
-    name: "Claude Sonnet 3.7",
+    name: "Claude 3.7 Sonnet", // New from table: Claude 3.7 Sonnet (20250219)
     provider: "Anthropic",
     avgTokensPerWord: 1.25,
     avgCharsPerToken: 3.2,
     description:
-      "Anthropic's Claude Sonnet 3.7. Image support via formula. Costs per 1K tokens.",
+      "Anthropic's Claude 3.7 Sonnet. Image support via formula. Costs per 1K tokens.",
     contextWindow: parseContextWindow("200K"),
     outputLimit: 4096,
     imageTokenizationMode: "formula",
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "Custom subword tokenizer",
+    tokenizerType: "BPE (Anthropic)",
+    costPer1kTokens: { input: 0, output: 0 }, // Table: N/A
+    license: "Proprietary",
+  },
+  {
+    name: "Claude 3.5 Sonnet", // New from table (duplicate name, from 20241022)
+    provider: "Anthropic",
+    avgTokensPerWord: 1.25,
+    avgCharsPerToken: 3.2,
+    description:
+      "Anthropic's Claude 3.5 Sonnet. Image support via formula. Costs per 1K tokens.",
+    contextWindow: parseContextWindow("200K"),
+    outputLimit: 4096,
+    imageTokenizationMode: "formula",
+    videoTokensPerSecond: 0,
+    audioTokensPerSecond: 0,
+    tokenizerType: "BPE (Anthropic)",
     costPer1kTokens: { input: 0.003, output: 0.015 },
+    license: "Proprietary",
   },
 
   // Google Models from PriceCalculator.tsx
@@ -467,12 +604,13 @@ const tokenizers: TokenizerInfo[] = [
     description: "Google's flagship Gemini 1.5 Pro model. Costs per 1K tokens.",
     contextWindow: parseContextWindow("1M"),
     outputLimit: 8192,
-    imageTokens: { small: 258, large: 258 }, // Fixed token cost per image
+    imageTokens: { small: 258, large: 258 },
     imageTokenizationMode: "fixed",
-    videoTokensPerSecond: 263, // Placeholder based on Gemini 1.0 docs
-    audioTokensPerSecond: 32, // Placeholder based on Gemini 1.0 docs
-    tokenizerType: "SentencePiece",
+    videoTokensPerSecond: 263,
+    audioTokensPerSecond: 32,
+    tokenizerType: "BPE (Google SentencePiece)",
     costPer1kTokens: { input: 0.0035, output: 0.0105 },
+    license: "Proprietary",
   },
   {
     name: "Gemini 1.5 Flash",
@@ -481,14 +619,15 @@ const tokenizers: TokenizerInfo[] = [
     avgCharsPerToken: 4,
     description:
       "Google's fast and efficient Gemini 1.5 Flash model. Costs per 1K tokens.",
-    contextWindow: parseContextWindow("2.8M"), // Note: PriceCalc had 2.8M, previous TC had 1M. Using 2.8M.
+    contextWindow: parseContextWindow("2.8M"),
     outputLimit: 8192,
     imageTokens: { small: 258, large: 258 },
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 263, // Placeholder based on Gemini 1.0 docs
     audioTokensPerSecond: 32, // Placeholder based on Gemini 1.0 docs
-    tokenizerType: "SentencePiece",
+    tokenizerType: "BPE (Google SentencePiece)",
     costPer1kTokens: { input: 0.00035, output: 0.00105 }, // Corrected from 0.000075 / 0.0003
+    license: "Proprietary",
   },
   {
     name: "Gemini Pro", // This is likely older Gemini 1.0 Pro
@@ -501,8 +640,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "none", // Older Gemini Pro (text) likely no direct image token charge
     videoTokensPerSecond: 0,
     audioTokensPerSecond: 0,
-    tokenizerType: "SentencePiece",
+    tokenizerType: "BPE (Google SentencePiece)",
     costPer1kTokens: { input: 0.0005, output: 0.0015 },
+    license: "Proprietary",
   },
   {
     name: "Gemini 2.5 Flash Preview", // This is a new name from PriceCalculator
@@ -516,8 +656,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 263, // Assuming capabilities
     audioTokensPerSecond: 32, // Assuming capabilities
-    tokenizerType: "SentencePiece",
+    tokenizerType: "BPE (Google SentencePiece)",
     costPer1kTokens: { input: 0.00015, output: 0.0006 },
+    license: "Proprietary",
   },
   {
     name: "Gemini 2.5 Pro Preview", // This is a new name from PriceCalculator
@@ -531,8 +672,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 263, // Assuming capabilities
     audioTokensPerSecond: 32, // Assuming capabilities
-    tokenizerType: "SentencePiece",
+    tokenizerType: "BPE (Google SentencePiece)",
     costPer1kTokens: { input: 0.00125, output: 0.01 },
+    license: "Proprietary",
   },
   {
     name: "Gemini 2.0 Flash", // This is a new name from PriceCalculator
@@ -546,8 +688,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 263, // Assuming capabilities
     audioTokensPerSecond: 32, // Assuming capabilities
-    tokenizerType: "SentencePiece",
+    tokenizerType: "BPE (Google SentencePiece)",
     costPer1kTokens: { input: 0.0001, output: 0.0004 },
+    license: "Proprietary",
   },
   {
     name: "Gemini 2.0 Flash-Lite", // This is a new name from PriceCalculator
@@ -561,8 +704,9 @@ const tokenizers: TokenizerInfo[] = [
     imageTokenizationMode: "fixed",
     videoTokensPerSecond: 263, // Assuming capabilities
     audioTokensPerSecond: 32, // Assuming capabilities
-    tokenizerType: "SentencePiece",
+    tokenizerType: "BPE (Google SentencePiece)",
     costPer1kTokens: { input: 0.000075, output: 0.0003 },
+    license: "Proprietary",
   },
 
   // Meta Llama Models (Fireworks, Deepinfra) from PriceCalculator.tsx
@@ -579,6 +723,7 @@ const tokenizers: TokenizerInfo[] = [
     audioTokensPerSecond: 0,
     tokenizerType: "BPE (SentencePiece)",
     costPer1kTokens: { input: 0.003, output: 0.003 },
+    license: "Llama 3 Community License",
   },
   {
     name: "Llama 3.1 70B Instruct",
