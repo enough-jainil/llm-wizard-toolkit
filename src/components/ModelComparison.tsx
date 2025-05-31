@@ -11,12 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { GitCompare, Search, X } from "lucide-react";
-import {
-  uniqueModelComparisonData,
-  ModelData,
-} from "../../models/modelDataConverter";
+import { useOpenRouterModelComparison } from "@/hooks/useOpenRouterModelComparison";
+import OpenRouterStatus from "@/components/OpenRouterStatus";
+import type { ModelData } from "@/lib/openrouter";
 
 const ModelComparison = () => {
+  // Use the new OpenRouter models hook
+  const { models: uniqueModelComparisonData, isLoading } =
+    useOpenRouterModelComparison();
+
   const [selectedModels, setSelectedModels] = useState<string[]>(
     [
       // Default selections - ensure these models exist in the uniqueModelComparisonData
@@ -111,17 +114,23 @@ const ModelComparison = () => {
       case "DeepSeek":
         return "bg-emerald-100 text-emerald-800";
       case "Cloudflare":
-        return "bg-orange-100 text-orange-800"; // Re-using orange for Cloudflare like in PriceCalculator
+        return "bg-orange-100 text-orange-800";
       case "AWS":
         return "bg-amber-100 text-amber-800";
       case "Replicate":
         return "bg-violet-100 text-violet-800";
       case "xAI":
-        return "bg-pink-100 text-pink-800"; // Added for xAI
+        return "bg-pink-100 text-pink-800";
       case "Microsoft":
-        return "bg-teal-100 text-teal-800"; // Added for Microsoft
+        return "bg-teal-100 text-teal-800";
       case "Alibaba Cloud":
-        return "bg-purple-100 text-purple-800"; // Re-using purple, or choose new
+        return "bg-purple-100 text-purple-800";
+      case "Meta":
+        return "bg-blue-100 text-blue-800";
+      case "Together":
+        return "bg-green-100 text-green-800";
+      case "Unknown":
+        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -146,6 +155,9 @@ const ModelComparison = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* OpenRouter Status Component */}
+      <OpenRouterStatus />
+
       {/* Model Selection */}
       <Card>
         <CardHeader>
@@ -155,6 +167,7 @@ const ModelComparison = () => {
           </CardTitle>
           <CardDescription>
             Select up to 4 models to compare side-by-side
+            {isLoading && " • Loading latest models..."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -168,6 +181,7 @@ const ModelComparison = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-10 h-11"
+                  disabled={isLoading}
                 />
                 {searchTerm && (
                   <Button
@@ -199,6 +213,7 @@ const ModelComparison = () => {
                     size="sm"
                     onClick={() => setFilterCategory("all")}
                     className="h-9"
+                    disabled={isLoading}
                   >
                     All Models
                   </Button>
@@ -209,6 +224,7 @@ const ModelComparison = () => {
                     size="sm"
                     onClick={() => setFilterCategory("flagship")}
                     className="h-9"
+                    disabled={isLoading}
                   >
                     Flagship
                   </Button>
@@ -219,6 +235,7 @@ const ModelComparison = () => {
                     size="sm"
                     onClick={() => setFilterCategory("efficient")}
                     className="h-9"
+                    disabled={isLoading}
                   >
                     Efficient
                   </Button>
@@ -260,6 +277,7 @@ const ModelComparison = () => {
                         }
                       }}
                       className="h-9"
+                      disabled={isLoading}
                     >
                       {provider}
                     </Button>
@@ -269,14 +287,16 @@ const ModelComparison = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {filteredModels.length === 0 ? (
               <div className="col-span-full text-center py-8 text-gray-500">
                 <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p>No models found</p>
+                <p>{isLoading ? "Loading models..." : "No models found"}</p>
                 <p className="text-sm">
-                  {searchTerm
-                    ? `Try adjusting your search term or filters`
+                  {isLoading
+                    ? "Please wait while we fetch the latest models"
+                    : searchTerm
+                    ? "Try adjusting your search term or filters"
                     : "Try adjusting your filters"}
                 </p>
               </div>

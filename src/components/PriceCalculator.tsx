@@ -31,18 +31,9 @@ import {
   ChevronsUpDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { modelPricingData } from "../../models/modelDataConverter"; // Import centralized data
-
-interface ModelPricing {
-  name: string;
-  provider: string;
-  inputCost: number; // per 1K tokens
-  outputCost: number; // per 1K tokens
-  category: string;
-  contextWindow?: string;
-  score?: number;
-  license?: string;
-}
+import { useOpenRouterModels } from "@/hooks/useOpenRouterModels";
+import OpenRouterStatus from "@/components/OpenRouterStatus";
+import type { ModelPricing } from "@/lib/openrouter";
 
 interface CalculationEntry {
   id: number;
@@ -54,14 +45,15 @@ interface CalculationEntry {
   timestamp: string;
 }
 
-const modelPricing: ModelPricing[] = modelPricingData; // Use imported data
-
 const PriceCalculator = () => {
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [inputTokens, setInputTokens] = useState<string>("1000");
   const [outputTokens, setOutputTokens] = useState<string>("500");
   const [calculations, setCalculations] = useState<CalculationEntry[]>([]);
   const [isModelSelectOpen, setIsModelSelectOpen] = useState<boolean>(false);
+
+  // Use the new OpenRouter models hook
+  const { models: modelPricing, isLoading } = useOpenRouterModels();
 
   const currentModel = modelPricing.find((m) => m.name === selectedModel);
 
@@ -125,6 +117,10 @@ const PriceCalculator = () => {
         return "bg-emerald-100 text-emerald-800";
       case "Alibaba Cloud":
         return "bg-purple-100 text-purple-800";
+      case "Meta":
+        return "bg-blue-100 text-blue-800";
+      case "Together":
+        return "bg-green-100 text-green-800";
       case "Unknown":
         return "bg-gray-100 text-gray-800";
       default:
@@ -134,6 +130,9 @@ const PriceCalculator = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* OpenRouter Status Component */}
+      <OpenRouterStatus />
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Calculator Form */}
         <Card>
@@ -144,6 +143,7 @@ const PriceCalculator = () => {
             </CardTitle>
             <CardDescription>
               Calculate costs for LLM API usage across different providers
+              {isLoading && " • Loading latest models..."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -159,12 +159,15 @@ const PriceCalculator = () => {
                     role="combobox"
                     aria-expanded={isModelSelectOpen}
                     className="w-full justify-between h-auto min-h-[44px] text-left"
+                    disabled={isLoading}
                   >
                     <span className="truncate">
                       {selectedModel
                         ? modelPricing.find(
                             (model) => model.name === selectedModel
                           )?.name
+                        : isLoading
+                        ? "Loading models..."
                         : "Choose an LLM model..."}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
