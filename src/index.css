@@ -97,24 +97,79 @@
 
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Mobile-specific improvements */
+  /* Enhanced Mobile-First Design System */
+  html {
+    /* Better font scaling for mobile */
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+
+  /* Improved Touch Targets & Interaction */
+  button,
+  [role="button"],
+  [role="tab"],
+  input,
+  select,
+  textarea,
+  .interactive-element {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
+  }
+
+  /* Better Input Handling for Mobile */
+  input,
+  textarea,
+  select {
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    transform: scale(1.02);
+  }
+
+  /* Enhanced Scrolling Experience */
+  .scroll-container,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+
+  .scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Mobile-Optimized Typography */
   @media (max-width: 768px) {
-    /* Improve touch targets */
-    button,
-    [role="button"],
-    input,
-    select,
-    textarea {
-      min-height: 44px;
-    }
-
-    /* Better text sizing for mobile */
-    html {
-      font-size: 16px;
-    }
-
     /* Prevent zoom on input focus for iOS */
     input[type="color"],
     input[type="date"],
@@ -130,25 +185,85 @@
     input[type="time"],
     input[type="url"],
     input[type="week"],
-    select:focus,
+    select,
     textarea {
-      font-size: 16px;
+      font-size: 16px !important;
     }
 
-    /* Improve scrolling on mobile */
-    .overflow-y-auto,
-    .overflow-x-auto {
+    /* Better mobile spacing */
+    .card-mobile-spacing {
+      padding: 1rem;
+    }
+
+    /* Mobile-specific button styles */
+    button,
+    [role="button"] {
+      min-height: 48px;
+      padding: 12px 16px;
+    }
+
+    /* Better mobile grid layouts */
+    .mobile-grid-1 {
+      grid-template-columns: 1fr;
+    }
+
+    .mobile-grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Enhanced mobile table handling */
+    .table-mobile-scroll {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Better tap highlighting */
-    .touch-manipulation {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    .table-mobile-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .table-mobile-scroll table {
+      min-width: 600px;
+    }
+
+    /* Mobile-friendly form layouts */
+    .form-mobile-stack {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-mobile-stack > * {
+      width: 100%;
     }
   }
 
-  /* Accessibility improvements */
+  /* Tablet Optimizations */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .tablet-grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tablet-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Desktop Enhancements */
+  @media (min-width: 1025px) {
+    .desktop-hover-effects:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Better desktop interaction feedback */
+    button:hover,
+    [role="button"]:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  /* Accessibility Improvements */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -156,13 +271,88 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
 
-  /* High contrast mode support */
   @media (prefers-contrast: high) {
     .border {
       border-width: 2px;
     }
+
+    button,
+    [role="button"] {
+      border: 2px solid currentColor;
+    }
+  }
+
+  /* Focus Visible Improvements */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Dark Mode Enhancements */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    * {
+      background: transparent !important;
+      color: black !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+  }
+
+  /* Performance Optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .contain-layout {
+    contain: layout;
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+
+  /* Custom Component Enhancements */
+  .card-enhanced {
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .button-enhanced {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .button-enhanced::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+  }
+
+  .button-enhanced:active::before {
+    width: 300px;
+    height: 300px;
   }
 }

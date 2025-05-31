@@ -128,11 +128,11 @@ const PriceCalculator = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+    <div className="space-y-6 lg:space-y-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         {/* Calculator Form */}
-        <Card>
-          <CardHeader>
+        <Card className="shadow-lg">
+          <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               <Calculator className="w-5 h-5" />
               Price Calculator
@@ -142,9 +142,14 @@ const PriceCalculator = () => {
               {isLoading && " • Loading latest models..."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="model">Select Model</Label>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              <Label
+                htmlFor="model"
+                className="text-sm font-medium text-gray-700"
+              >
+                Select Model
+              </Label>
               <Popover
                 open={isModelSelectOpen}
                 onOpenChange={setIsModelSelectOpen}
@@ -154,10 +159,10 @@ const PriceCalculator = () => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={isModelSelectOpen}
-                    className="w-full justify-between h-auto min-h-[44px] text-left"
+                    className="w-full justify-between h-12 text-left bg-white hover:bg-gray-50"
                     disabled={isLoading}
                   >
-                    <span className="truncate">
+                    <span className="truncate text-sm">
                       {selectedModel
                         ? modelPricing.find(
                             (model) => model.name === selectedModel
@@ -174,8 +179,11 @@ const PriceCalculator = () => {
                   align="start"
                 >
                   <Command>
-                    <CommandInput placeholder="Search models by name, provider, or category..." />
-                    <CommandList>
+                    <CommandInput
+                      placeholder="Search models by name, provider, or category..."
+                      className="h-12 text-base"
+                    />
+                    <CommandList className="max-h-[300px]">
                       <CommandEmpty>No models found.</CommandEmpty>
                       <CommandGroup>
                         {modelPricing.map((model) => (
@@ -186,6 +194,7 @@ const PriceCalculator = () => {
                               setSelectedModel(model.name);
                               setIsModelSelectOpen(false);
                             }}
+                            className="py-3"
                           >
                             <Check
                               className={cn(
@@ -195,15 +204,30 @@ const PriceCalculator = () => {
                                   : "opacity-0"
                               )}
                             />
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-1 sm:gap-2">
-                              <span className="truncate">{model.name}</span>
-                              <Badge
-                                className={`self-start sm:self-auto text-xs ${getProviderColor(
-                                  model.provider
-                                )}`}
-                              >
-                                {model.provider}
-                              </Badge>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium truncate">
+                                  {model.name}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  Input: ${model.inputCost.toFixed(4)}/1K •
+                                  Output: ${model.outputCost.toFixed(4)}/1K
+                                </div>
+                              </div>
+                              <div className="flex gap-1 flex-wrap">
+                                <Badge
+                                  className={`text-xs ${getProviderColor(
+                                    model.provider
+                                  )}`}
+                                >
+                                  {model.provider}
+                                </Badge>
+                                {model.category === "flagship" && (
+                                  <Badge className="text-xs bg-yellow-100 text-yellow-800">
+                                    Flagship
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </CommandItem>
                         ))}
@@ -215,138 +239,246 @@ const PriceCalculator = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="input-tokens">Input Tokens</Label>
+              <div className="space-y-3">
+                <Label
+                  htmlFor="inputTokens"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Input Tokens
+                </Label>
                 <Input
-                  id="input-tokens"
+                  id="inputTokens"
                   type="number"
                   value={inputTokens}
                   onChange={(e) => setInputTokens(e.target.value)}
                   placeholder="1000"
-                  className="h-11"
+                  className="h-12 text-base"
+                  min="0"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="output-tokens">Output Tokens</Label>
+              <div className="space-y-3">
+                <Label
+                  htmlFor="outputTokens"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Output Tokens
+                </Label>
                 <Input
-                  id="output-tokens"
+                  id="outputTokens"
                   type="number"
                   value={outputTokens}
                   onChange={(e) => setOutputTokens(e.target.value)}
                   placeholder="500"
-                  className="h-11"
+                  className="h-12 text-base"
+                  min="0"
                 />
               </div>
             </div>
 
             {currentModel && (
-              <div className="bg-slate-50 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Input cost (per 1K tokens):</span>
-                  <span className="font-mono">
-                    ${currentModel.inputCost.toFixed(4)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Output cost (per 1K tokens):</span>
-                  <span className="font-mono">
-                    ${currentModel.outputCost.toFixed(4)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>Input cost (per 1M tokens):</span>
-                  <span className="font-mono">
-                    ${(currentModel.inputCost * 1000).toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-500">
-                  <span>Output cost (per 1M tokens):</span>
-                  <span className="font-mono">
-                    ${(currentModel.outputCost * 1000).toFixed(2)}
-                  </span>
-                </div>
-                <div className="border-t pt-2">
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Total Cost:</span>
-                    <span className="text-green-600 font-mono">
-                      ${calculateCost().toFixed(4)}
+              <div className="bg-blue-50 rounded-lg p-4 space-y-3">
+                <h4 className="font-medium text-blue-900">Model Details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Provider:</span>
+                    <Badge className={getProviderColor(currentModel.provider)}>
+                      {currentModel.provider}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Category:</span>
+                    <Badge
+                      className={
+                        currentModel.category === "flagship"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                      }
+                    >
+                      {currentModel.category}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Input cost:</span>
+                    <span className="font-mono">
+                      ${currentModel.inputCost.toFixed(4)}/1K
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Output cost:</span>
+                    <span className="font-mono">
+                      ${currentModel.outputCost.toFixed(4)}/1K
                     </span>
                   </div>
                 </div>
               </div>
             )}
 
-            <Button
-              onClick={addCalculation}
-              className="w-full h-11"
-              disabled={!currentModel}
-            >
-              <DollarSign className="w-4 h-4 mr-2" />
-              Add to Calculations
-            </Button>
+            <div className="pt-2">
+              <Button
+                onClick={addCalculation}
+                disabled={!currentModel || !inputTokens || !outputTokens}
+                className="w-full h-12 text-base font-medium"
+                size="lg"
+              >
+                <Calculator className="w-4 h-4 mr-2" />
+                Calculate Cost
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Recent Calculations */}
-        <Card>
-          <CardHeader>
+        {/* Results */}
+        <Card className="shadow-lg">
+          <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <TrendingUp className="w-5 h-5" />
-              Recent Calculations
+              <DollarSign className="w-5 h-5" />
+              Cost Estimation
             </CardTitle>
             <CardDescription>
-              Your recent cost calculations and comparisons
+              Current calculation and pricing breakdown
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {calculations.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
-                <Calculator className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p>No calculations yet</p>
-                <p className="text-sm">Add a calculation to see it here</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {calculations.map((calc) => (
-                  <div
-                    key={calc.id}
-                    className="border rounded-lg p-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="min-w-0 flex-1 mr-3">
-                        <h4 className="font-semibold text-sm truncate">
-                          {calc.model}
-                        </h4>
-                        <Badge
-                          className={`text-xs ${getProviderColor(
-                            calc.provider
-                          )}`}
-                        >
-                          {calc.provider}
-                        </Badge>
-                      </div>
-                      <span className="font-mono text-lg font-bold text-green-600 flex-shrink-0">
-                        ${calc.cost.toFixed(4)}
+          <CardContent className="space-y-6">
+            {currentModel && inputTokens && outputTokens ? (
+              <>
+                <div className="text-center space-y-3">
+                  <div className="text-4xl sm:text-5xl font-bold text-green-600">
+                    ${calculateCost().toFixed(6)}
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Total cost for {parseInt(inputTokens).toLocaleString()}{" "}
+                    input + {parseInt(outputTokens).toLocaleString()} output
+                    tokens
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <h4 className="font-medium text-gray-900">Cost Breakdown</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>
+                        Input tokens ({parseInt(inputTokens).toLocaleString()}):
+                      </span>
+                      <span className="font-mono">
+                        $
+                        {(
+                          (parseInt(inputTokens) / 1000) *
+                          currentModel.inputCost
+                        ).toFixed(6)}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-600 grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
+                    <div className="flex justify-between">
                       <span>
-                        Input: {calc.inputTokens.toLocaleString()} tokens
+                        Output tokens ({parseInt(outputTokens).toLocaleString()}
+                        ):
                       </span>
-                      <span>
-                        Output: {calc.outputTokens.toLocaleString()} tokens
+                      <span className="font-mono">
+                        $
+                        {(
+                          (parseInt(outputTokens) / 1000) *
+                          currentModel.outputCost
+                        ).toFixed(6)}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {calc.timestamp}
+                    <div className="border-t pt-2 flex justify-between font-medium">
+                      <span>Total cost:</span>
+                      <span className="font-mono">
+                        ${calculateCost().toFixed(6)}
+                      </span>
                     </div>
                   </div>
-                ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <div className="text-lg font-semibold text-blue-600">
+                      ${(calculateCost() * 1000).toFixed(3)}
+                    </div>
+                    <div className="text-xs text-blue-600">
+                      Per 1,000 requests
+                    </div>
+                  </div>
+                  <div className="bg-purple-50 rounded-lg p-3">
+                    <div className="text-lg font-semibold text-purple-600">
+                      ${(calculateCost() * 1000000).toFixed(2)}
+                    </div>
+                    <div className="text-xs text-purple-600">
+                      Per 1M requests
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <TrendingUp className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium mb-2">Ready to Calculate</h3>
+                <p className="text-sm max-w-sm mx-auto">
+                  Select a model and enter token counts to see pricing estimates
+                  and cost breakdowns.
+                </p>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Calculations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <TrendingUp className="w-5 h-5" />
+            Recent Calculations
+          </CardTitle>
+          <CardDescription>
+            Your recent cost calculations and comparisons
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {calculations.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              <Calculator className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No calculations yet</p>
+              <p className="text-sm">Add a calculation to see it here</p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {calculations.map((calc) => (
+                <div
+                  key={calc.id}
+                  className="border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="min-w-0 flex-1 mr-3">
+                      <h4 className="font-semibold text-sm truncate">
+                        {calc.model}
+                      </h4>
+                      <Badge
+                        className={`text-xs ${getProviderColor(calc.provider)}`}
+                      >
+                        {calc.provider}
+                      </Badge>
+                    </div>
+                    <span className="font-mono text-lg font-bold text-green-600 flex-shrink-0">
+                      ${calc.cost.toFixed(4)}
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-600 grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
+                    <span>
+                      Input: {calc.inputTokens.toLocaleString()} tokens
+                    </span>
+                    <span>
+                      Output: {calc.outputTokens.toLocaleString()} tokens
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {calc.timestamp}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Model Pricing Overview */}
       <Card>
