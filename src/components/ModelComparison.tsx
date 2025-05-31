@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   GitCompare,
@@ -313,16 +312,7 @@ const ModelComparison = () => {
                     }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex items-center h-5 mt-1">
-                        <Checkbox
-                          checked={selectedModels.includes(model.name)}
-                          disabled={
-                            selectedModels.length >= 4 &&
-                            !selectedModels.includes(model.name)
-                          }
-                          className="h-4 w-4 rounded-sm border border-gray-300 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white shadow-sm"
-                        />
-                      </div>
+                      <div className="flex items-center h-5 mt-1"></div>
                       <div className="flex-1 min-w-0 space-y-3">
                         <div>
                           <h4 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
