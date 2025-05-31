@@ -14,11 +14,13 @@ import {
   GitCompare,
   Brain,
   Zap,
+  Database,
 } from "lucide-react";
 import PriceCalculator from "@/components/PriceCalculator";
 import TokenCalculator from "@/components/TokenCalculator";
 import HardwareCalculator from "@/components/HardwareCalculator";
 import ModelComparison from "@/components/ModelComparison";
+import ModelExplorer from "@/components/ModelExplorer";
 import OpenRouterStatusFooter from "@/components/OpenRouterStatusFooter";
 import { updatePageSEO, addStructuredData, STRUCTURED_DATA } from "@/lib/seo";
 
@@ -92,6 +94,17 @@ const Index = () => {
         "AI model comparison, LLM comparison, GPT vs Claude, model benchmarks",
       shortTitle: "Compare",
     },
+    {
+      id: "explorer",
+      title: "Model Explorer",
+      description:
+        "Explore detailed information about 500+ AI models including architecture, pricing, capabilities, and specifications",
+      icon: Database,
+      color: "text-indigo-600",
+      keywords:
+        "AI model database, model specifications, OpenRouter models, model details",
+      shortTitle: "Explorer",
+    },
   ];
 
   return (
@@ -162,7 +175,7 @@ const Index = () => {
             >
               {/* Mobile-friendly tab navigation */}
               <TabsList
-                className="grid grid-cols-2 sm:grid-cols-4 w-full mb-6 sm:mb-8 h-auto p-1 gap-1"
+                className="grid grid-cols-3 sm:grid-cols-5 w-full mb-6 sm:mb-8 h-auto p-1 gap-1"
                 role="tablist"
               >
                 {tools.map((tool) => {
@@ -229,6 +242,16 @@ const Index = () => {
                 aria-labelledby="compare-tab"
               >
                 <ModelComparison />
+              </TabsContent>
+
+              <TabsContent
+                value="explorer"
+                className="mt-0"
+                role="tabpanel"
+                id="explorer-panel"
+                aria-labelledby="explorer-tab"
+              >
+                <ModelExplorer />
               </TabsContent>
             </Tabs>
           </CardContent>

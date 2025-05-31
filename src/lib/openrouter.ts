@@ -1,32 +1,40 @@
 // OpenRouter API client for fetching available models
 // Based on: https://openrouter.ai/docs/api-reference/list-available-models
 
+interface PerRequestLimits {
+  [key: string]: string | number | boolean | null;
+}
+
 export interface OpenRouterModel {
   id: string;
   name: string;
   created: number;
   description: string;
+  hugging_face_id?: string;
   architecture: {
+    modality: string;
     input_modalities: string[];
     output_modalities: string[];
     tokenizer: string;
+    instruct_type?: string | null;
   };
+  context_length: number;
   top_provider: {
+    context_length: number;
+    max_completion_tokens?: number | null;
     is_moderated: boolean;
   };
   pricing: {
     prompt: string;
     completion: string;
-    image: string;
+    image?: string;
     request: string;
-    input_cache_read: string;
-    input_cache_write: string;
-    web_search: string;
-    internal_reasoning: string;
+    input_cache_read?: string;
+    input_cache_write?: string;
+    web_search?: string;
+    internal_reasoning?: string;
   };
-  context_length: number;
-  hugging_face_id?: string;
-  per_request_limits?: Record<string, any>;
+  per_request_limits?: PerRequestLimits | null;
   supported_parameters: string[];
 }
 
@@ -439,4 +447,125 @@ export const getCacheStatus = (): {
   } catch (error) {
     return { hasCachedData: false, isValid: false };
   }
+};
+
+// Utility functions for handling comprehensive model data
+
+// Format pricing information for display
+export const formatPricing = (pricing: OpenRouterModel["pricing"]) => {
+  const formatPrice = (price: string | undefined) => {
+    if (!price || price === "0") return "Free";
+    const num = parseFloat(price);
+    if (isNaN(num)) return "N/A";
+    return `$${(num * 1000000).toFixed(6)}`;
+  };
+
+  return {
+    prompt: formatPrice(pricing.prompt),
+    completion: formatPrice(pricing.completion),
+    image: formatPrice(pricing.image),
+    request: formatPrice(pricing.request),
+    inputCacheRead: formatPrice(pricing.input_cache_read),
+    inputCacheWrite: formatPrice(pricing.input_cache_write),
+    webSearch: formatPrice(pricing.web_search),
+    internalReasoning: formatPrice(pricing.internal_reasoning),
+  };
+};
+
+// Format supported parameters for display
+export const formatSupportedParameters = (parameters: string[]): string[] => {
+  return parameters.sort().map((param) => {
+    // Convert snake_case to Title Case
+    return param
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  });
+};
+
+// Get model capabilities summary
+export const getModelCapabilities = (model: OpenRouterModel) => {
+  const capabilities = {
+    textInput: model.architecture.input_modalities.includes("text"),
+    imageInput: model.architecture.input_modalities.includes("image"),
+    fileInput: model.architecture.input_modalities.includes("file"),
+    textOutput: model.architecture.output_modalities.includes("text"),
+    isMultimodal: model.architecture.input_modalities.length > 1,
+    hasVision:
+      model.architecture.input_modalities.includes("image") ||
+      model.name.toLowerCase().includes("vision"),
+    hasCodeCapabilities:
+      model.name.toLowerCase().includes("code") ||
+      model.description.toLowerCase().includes("code"),
+    hasReasoningCapabilities:
+      model.supported_parameters.includes("reasoning") ||
+      model.description.toLowerCase().includes("reasoning"),
+    tokenizer: model.architecture.tokenizer,
+    instructType: model.architecture.instruct_type,
+    modality: model.architecture.modality,
+  };
+
+  return capabilities;
+};
+
+// Get model limits and constraints
+export const getModelLimits = (model: OpenRouterModel) => {
+  return {
+    contextLength: model.context_length,
+    maxCompletionTokens: model.top_provider.max_completion_tokens,
+    isModerated: model.top_provider.is_moderated,
+    perRequestLimits: model.per_request_limits,
+    supportedParameters: model.supported_parameters,
+  };
+};
+
+// Enhanced model categorization with more detailed analysis
+export const getDetailedCategory = (model: OpenRouterModel) => {
+  const name = model.name.toLowerCase();
+  const description = model.description.toLowerCase();
+  const pricing = model.pricing;
+
+  const promptCost = parseFloat(pricing.prompt) * 1000000; // Cost per 1M tokens
+  const completionCost = parseFloat(pricing.completion) * 1000000;
+
+  // Determine if it's a free model
+  if (promptCost === 0 && completionCost === 0) {
+    return { category: "free", tier: "community" };
+  }
+
+  // Flagship/Premium models
+  if (
+    name.includes("gpt-4") ||
+    name.includes("claude-3.5") ||
+    name.includes("claude-3-opus") ||
+    name.includes("gemini-2") ||
+    name.includes("o1") ||
+    promptCost > 15 // High cost threshold
+  ) {
+    return { category: "flagship", tier: "premium" };
+  }
+
+  // Efficient/Budget models
+  if (
+    name.includes("mini") ||
+    name.includes("fast") ||
+    name.includes("turbo") ||
+    name.includes("flash") ||
+    name.includes("haiku") ||
+    promptCost < 1 // Low cost threshold
+  ) {
+    return { category: "efficient", tier: "budget" };
+  }
+
+  // Specialized models
+  if (
+    name.includes("code") ||
+    name.includes("vision") ||
+    name.includes("multimodal") ||
+    model.architecture.input_modalities.includes("image")
+  ) {
+    return { category: "specialized", tier: "standard" };
+  }
+
+  return { category: "standard", tier: "standard" };
 };
