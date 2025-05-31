@@ -49,10 +49,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { get_encoding, encoding_for_model, Tiktoken } from "tiktoken";
-import {
-  uniqueTokenizerData,
-  TokenizerInfo,
-} from "../../models/modelDataConverter";
+import { useOpenRouterModelComparison } from "@/hooks/useOpenRouterModelComparison";
 
 interface AnalysisEntry {
   id: number;
@@ -81,7 +78,28 @@ interface AnalysisEntry {
   timestamp: string;
 }
 
-const tokenizers: TokenizerInfo[] = uniqueTokenizerData;
+interface TokenizerInfo {
+  name: string;
+  provider: string;
+  avgTokensPerWord: number;
+  avgCharsPerToken: number;
+  description: string;
+  contextWindow: number;
+  outputLimit: number;
+  imageTokens?: {
+    small: number;
+    large: number;
+  };
+  imageTokenizationMode?: "fixed" | "formula" | "none";
+  videoTokensPerSecond?: number;
+  audioTokensPerSecond?: number;
+  tokenizerType: string;
+  costPer1kTokens?: {
+    input: number;
+    output: number;
+  };
+  license?: string;
+}
 
 // Initialize o200k_base encoder for OpenAI models that use it (GPT-4o, GPT-4.1 variants, o3, o4-mini)
 // We are doing this outside the component to avoid re-initializing on every render.
@@ -94,9 +112,123 @@ try {
   // Fallback or error handling if encoder can't be initialized
 }
 
+// Convert OpenRouter model to TokenizerInfo
+const convertToTokenizerInfo = (model: {
+  name: string;
+  provider: string;
+  contextWindow: number;
+  inputCost: number;
+  outputCost: number;
+  multimodal: boolean;
+  parameters: string;
+  speed: number;
+  reasoning: number;
+  coding: number;
+  creative: number;
+  languages: number;
+  category: string;
+  license?: string;
+}): TokenizerInfo => {
+  // Extract provider from model ID
+  const provider = model.provider || "Unknown";
+
+  // Estimate tokens per word and chars per token based on provider
+  let avgTokensPerWord = 1.3;
+  let avgCharsPerToken = 4;
+  let tokenizerType = "BPE";
+
+  switch (provider) {
+    case "OpenAI":
+      avgTokensPerWord = 1.3;
+      avgCharsPerToken = 4;
+      tokenizerType = "tiktoken (o200k_base)";
+      break;
+    case "Anthropic":
+      avgTokensPerWord = 1.2;
+      avgCharsPerToken = 4.2;
+      tokenizerType = "Claude tokenizer";
+      break;
+    case "Google":
+      avgTokensPerWord = 1.1;
+      avgCharsPerToken = 4.5;
+      tokenizerType = "SentencePiece";
+      break;
+    case "xAI":
+      avgTokensPerWord = 1.35;
+      avgCharsPerToken = 3.8;
+      tokenizerType = "Grok tokenizer";
+      break;
+    default:
+      avgTokensPerWord = 1.3;
+      avgCharsPerToken = 4;
+      tokenizerType = "BPE";
+  }
+
+  // Set multimodal capabilities based on provider and model
+  let imageTokens: { small: number; large: number } | undefined;
+  let imageTokenizationMode: "fixed" | "formula" | "none" | undefined;
+  let videoTokensPerSecond: number | undefined;
+  let audioTokensPerSecond: number | undefined;
+
+  if (model.multimodal) {
+    switch (provider) {
+      case "OpenAI":
+        imageTokens = { small: 85, large: 170 };
+        imageTokenizationMode = "fixed";
+        break;
+      case "Anthropic":
+        // Claude uses formula: (width * height) / 750
+        imageTokenizationMode = "formula";
+        break;
+      case "Google":
+        imageTokens = { small: 258, large: 516 };
+        imageTokenizationMode = "fixed";
+        break;
+      case "xAI":
+        imageTokens = { small: 896, large: 1792 };
+        imageTokenizationMode = "fixed";
+        break;
+      default:
+        imageTokens = { small: 100, large: 200 };
+        imageTokenizationMode = "fixed";
+    }
+  }
+
+  return {
+    name: model.name,
+    provider: provider,
+    avgTokensPerWord,
+    avgCharsPerToken,
+    description: `${
+      model.name
+    } - ${provider} tokenizer with ${model.contextWindow.toLocaleString()} token context`,
+    contextWindow: model.contextWindow,
+    outputLimit: Math.min(model.contextWindow, 4096), // Conservative output limit
+    imageTokens,
+    imageTokenizationMode,
+    videoTokensPerSecond,
+    audioTokensPerSecond,
+    tokenizerType,
+    costPer1kTokens: {
+      input: model.inputCost,
+      output: model.outputCost,
+    },
+    license: model.license,
+  };
+};
+
 const TokenCalculator = () => {
+  // Use OpenRouter models hook
+  const { models: openRouterModels, isLoading: isLoadingModels } =
+    useOpenRouterModelComparison();
+
+  // Convert OpenRouter models to tokenizer info
+  const tokenizers: TokenizerInfo[] = openRouterModels.map(
+    convertToTokenizerInfo
+  );
+
   const [text, setText] = useState("");
-  const [selectedTokenizer, setSelectedTokenizer] = useState("GPT-4o"); // Initialize with a valid model name from the new list
+  const [selectedTokenizer, setSelectedTokenizer] = useState(""); // Will be set when models load
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisEntry[]>([]);
   const [historySearchTerm, setHistorySearchTerm] = useState<string>("");
   const [isTokenizerSelectOpen, setIsTokenizerSelectOpen] =
@@ -112,6 +244,21 @@ const TokenCalculator = () => {
   const [expectedOutputWords, setExpectedOutputWords] = useState(0);
 
   const currentTokenizer = tokenizers.find((t) => t.name === selectedTokenizer);
+
+  // Set default tokenizer when models load
+  useEffect(() => {
+    if (tokenizers.length > 0 && !selectedTokenizer) {
+      // Try to find GPT-4o or similar, otherwise use first available
+      const defaultTokenizer =
+        tokenizers.find(
+          (t) =>
+            t.name.toLowerCase().includes("gpt-4o") ||
+            t.name.toLowerCase().includes("gpt-4")
+        ) || tokenizers[0];
+
+      setSelectedTokenizer(defaultTokenizer.name);
+    }
+  }, [tokenizers, selectedTokenizer]);
 
   const clearHistorySearch = () => {
     setHistorySearchTerm("");
@@ -377,9 +524,9 @@ const TokenCalculator = () => {
   const quickExamples = [
     "Hello, how are you today?",
     "The quick brown fox jumps over the lazy dog.",
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    "Write a Python function to calculate the Fibonacci sequence up to n terms.",
-    "Explain quantum computing in simple terms that a high school student would understand.",
+    "Write a Python function to calculate factorial.",
+    "Explain machine learning in simple terms.",
+    "Generate a creative story about a robot discovering emotions.",
   ];
 
   // Effect to free the encoder when the component unmounts
@@ -404,336 +551,372 @@ const TokenCalculator = () => {
             <CardDescription>
               Provider-specific tokenization with multimodal support and cost
               estimation
+              {isLoadingModels && " • Loading models..."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Tokenizer Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="tokenizer">AI Model / Tokenizer</Label>
-              <Popover
-                open={isTokenizerSelectOpen}
-                onOpenChange={setIsTokenizerSelectOpen}
-              >
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={isTokenizerSelectOpen}
-                    className="w-full justify-between h-auto min-h-[44px] text-left"
-                  >
-                    <span className="truncate">
-                      {selectedTokenizer
-                        ? tokenizers.find(
-                            (tokenizer) => tokenizer.name === selectedTokenizer
-                          )?.name
-                        : "Choose a tokenizer..."}
-                    </span>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-[var(--radix-popover-trigger-width)] max-w-[90vw] p-0"
-                  align="start"
-                >
-                  <Command>
-                    <CommandInput placeholder="Search tokenizers by name, provider, or description..." />
-                    <CommandList>
-                      <CommandEmpty>No tokenizers found.</CommandEmpty>
-                      <CommandGroup>
-                        {tokenizers.map((tokenizer) => (
-                          <CommandItem
-                            key={tokenizer.name}
-                            value={`${tokenizer.name} ${tokenizer.provider} ${tokenizer.description} ${tokenizer.tokenizerType}`}
-                            onSelect={() => {
-                              setSelectedTokenizer(tokenizer.name);
-                              setIsTokenizerSelectOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4 flex-shrink-0",
-                                selectedTokenizer === tokenizer.name
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-1 sm:gap-2">
-                              <span className="truncate">{tokenizer.name}</span>
-                              <Badge
-                                className={`self-start sm:self-auto text-xs ${getProviderColor(
-                                  tokenizer.provider
-                                )}`}
-                              >
-                                {tokenizer.provider}
-                              </Badge>
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Enhanced Tokenizer Info */}
-            {currentTokenizer && (
-              <div className="text-xs text-gray-600 space-y-1 p-3 bg-gray-50 rounded-lg">
-                <p>
-                  <strong>Description:</strong> {currentTokenizer.description}
-                </p>
-                <p>
-                  <strong>Type:</strong> {currentTokenizer.tokenizerType}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-                  <p>
-                    <strong>Context:</strong>{" "}
-                    {currentTokenizer.contextWindow.toLocaleString()} tokens
-                  </p>
-                  <p>
-                    <strong>Output:</strong>{" "}
-                    {currentTokenizer.outputLimit.toLocaleString()} tokens
-                  </p>
-                </div>
-                {currentTokenizer.costPer1kTokens && (
-                  <p>
-                    <strong>Cost:</strong> $
-                    {currentTokenizer.costPer1kTokens.input}/1k input, $
-                    {currentTokenizer.costPer1kTokens.output}/1k output
-                  </p>
-                )}
-                {currentTokenizer.costPer1kTokens && (
-                  <p className="text-xs text-gray-500">
-                    <strong>(Per 1M):</strong> $
-                    {(currentTokenizer.costPer1kTokens.input * 1000).toFixed(2)}
-                    /1M input, $
-                    {(currentTokenizer.costPer1kTokens.output * 1000).toFixed(
-                      2
-                    )}
-                    /1M output
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-1 sm:gap-2 mt-2">
-                  {currentTokenizer.imageTokens && (
-                    <Badge variant="outline" className="text-xs">
-                      Images: {currentTokenizer.imageTokens.small}-
-                      {currentTokenizer.imageTokens.large} tokens
-                    </Badge>
-                  )}
-                  {currentTokenizer.videoTokensPerSecond ? (
-                    <Badge variant="outline" className="text-xs">
-                      Video: {currentTokenizer.videoTokensPerSecond}/sec
-                    </Badge>
-                  ) : null}
-                  {currentTokenizer.audioTokensPerSecond ? (
-                    <Badge variant="outline" className="text-xs">
-                      Audio: {currentTokenizer.audioTokensPerSecond}/sec
-                    </Badge>
-                  ) : null}
-                </div>
+            {/* Loading State */}
+            {isLoadingModels && tokenizers.length === 0 && (
+              <div className="text-center py-8">
+                <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading AI models...</p>
               </div>
             )}
 
-            {/* Multimodal Content Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Image className="w-4 h-4" />
-                  Images
-                </Label>
-                <Input
-                  type="number"
-                  min="0"
-                  placeholder="Count"
-                  value={multimodalContent.imageCount || ""}
-                  onChange={(e) =>
-                    setMultimodalContent((prev) => ({
-                      ...prev,
-                      imageCount: parseInt(e.target.value) || 0,
-                    }))
-                  }
-                  className="h-11"
-                  // Disabled if Anthropic has 0 width/height, or other providers have no imageToken support
-                  disabled={
-                    currentTokenizer?.provider === "Anthropic"
-                      ? multimodalContent.imageWidth === 0 ||
-                        multimodalContent.imageHeight === 0
-                      : !currentTokenizer?.imageTokens
-                  }
-                />
-                {currentTokenizer?.provider === "Anthropic" &&
-                currentTokenizer.imageTokenizationMode === "formula" ? (
-                  <div className="space-y-2 mt-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="Width (px)"
-                      value={multimodalContent.imageWidth || ""}
-                      onChange={(e) =>
-                        setMultimodalContent((prev) => ({
-                          ...prev,
-                          imageWidth: parseInt(e.target.value) || 0,
-                        }))
-                      }
-                      className="h-11"
-                    />
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="Height (px)"
-                      value={multimodalContent.imageHeight || ""}
-                      onChange={(e) =>
-                        setMultimodalContent((prev) => ({
-                          ...prev,
-                          imageHeight: parseInt(e.target.value) || 0,
-                        }))
-                      }
-                      className="h-11"
-                    />
-                  </div>
-                ) : currentTokenizer?.provider === "OpenAI" ? (
-                  <Select
-                    value={multimodalContent.imageSizeCategory}
-                    onValueChange={(value: "small" | "large") =>
-                      setMultimodalContent((prev) => ({
-                        ...prev,
-                        imageSizeCategory: value,
-                      }))
-                    }
-                    disabled={!currentTokenizer?.imageTokens}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="small">Small (≤384px)</SelectItem>
-                      <SelectItem value="large">Large ({">"}384px)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="text-xs text-gray-500">
-                    Image sizing not applicable or supported.
-                  </p>
-                )}
+            {/* No Models State */}
+            {!isLoadingModels && tokenizers.length === 0 && (
+              <div className="text-center py-8">
+                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-600 mb-2">No models available</p>
+                <p className="text-sm text-gray-500">
+                  Please check your connection and try again
+                </p>
               </div>
+            )}
 
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Video className="w-4 h-4" />
-                  Video (seconds)
-                </Label>
-                <Input
-                  type="number"
-                  min="0"
-                  placeholder="Duration"
-                  value={multimodalContent.videoDurationSeconds || ""}
-                  onChange={(e) =>
-                    setMultimodalContent((prev) => ({
-                      ...prev,
-                      videoDurationSeconds: parseInt(e.target.value) || 0,
-                    }))
-                  }
-                  disabled={!currentTokenizer?.videoTokensPerSecond}
-                />
-                {!currentTokenizer?.videoTokensPerSecond && (
-                  <p className="text-xs text-gray-500">Not supported</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <AudioLines className="w-4 h-4" />
-                  Audio (seconds)
-                </Label>
-                <Input
-                  type="number"
-                  min="0"
-                  placeholder="Duration"
-                  value={multimodalContent.audioDurationSeconds || ""}
-                  onChange={(e) =>
-                    setMultimodalContent((prev) => ({
-                      ...prev,
-                      audioDurationSeconds: parseInt(e.target.value) || 0,
-                    }))
-                  }
-                  disabled={!currentTokenizer?.audioTokensPerSecond}
-                />
-                {!currentTokenizer?.audioTokensPerSecond && (
-                  <p className="text-xs text-gray-500">Not supported</p>
-                )}
-              </div>
-            </div>
-
-            {/* Text Input */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="text-input">Text Content</Label>
-                <div className="flex gap-2">
-                  <input
-                    type="file"
-                    accept=".txt"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      document.getElementById("file-upload")?.click()
-                    }
+            {/* Main Content - only show when models are available */}
+            {tokenizers.length > 0 && (
+              <>
+                {/* Tokenizer Selection */}
+                <div className="space-y-2">
+                  <Label htmlFor="tokenizer">AI Model / Tokenizer</Label>
+                  <Popover
+                    open={isTokenizerSelectOpen}
+                    onOpenChange={setIsTokenizerSelectOpen}
                   >
-                    <Upload className="w-4 h-4 mr-1" />
-                    Upload
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={exportAnalysis}
-                    disabled={!text.trim() && !multimodalContent.imageCount}
-                  >
-                    <Download className="w-4 h-4 mr-1" />
-                    Export
-                  </Button>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isTokenizerSelectOpen}
+                        className="w-full justify-between h-auto min-h-[44px] text-left"
+                        disabled={isLoadingModels}
+                      >
+                        <span className="truncate">
+                          {selectedTokenizer
+                            ? tokenizers.find(
+                                (tokenizer) =>
+                                  tokenizer.name === selectedTokenizer
+                              )?.name
+                            : isLoadingModels
+                            ? "Loading models..."
+                            : "Choose a tokenizer..."}
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-[var(--radix-popover-trigger-width)] max-w-[90vw] p-0"
+                      align="start"
+                    >
+                      <Command>
+                        <CommandInput placeholder="Search tokenizers by name, provider, or description..." />
+                        <CommandList>
+                          <CommandEmpty>No tokenizers found.</CommandEmpty>
+                          <CommandGroup>
+                            {tokenizers.map((tokenizer) => (
+                              <CommandItem
+                                key={tokenizer.name}
+                                value={`${tokenizer.name} ${tokenizer.provider} ${tokenizer.description} ${tokenizer.tokenizerType}`}
+                                onSelect={() => {
+                                  setSelectedTokenizer(tokenizer.name);
+                                  setIsTokenizerSelectOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4 flex-shrink-0",
+                                    selectedTokenizer === tokenizer.name
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-1 sm:gap-2">
+                                  <span className="truncate">
+                                    {tokenizer.name}
+                                  </span>
+                                  <Badge
+                                    className={`self-start sm:self-auto text-xs ${getProviderColor(
+                                      tokenizer.provider
+                                    )}`}
+                                  >
+                                    {tokenizer.provider}
+                                  </Badge>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
-              </div>
-              <Textarea
-                id="text-input"
-                placeholder="Enter your text here to analyze tokens, characters, words, and more..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                className="min-h-[200px] resize-none"
-              />
-            </div>
 
-            {/* Quick Examples */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Quick Examples</Label>
-              <div className="flex flex-wrap gap-2">
-                {quickExamples.map((example, index) => (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    size="sm"
-                    className="text-left justify-start text-xs h-auto p-2 max-w-48"
-                    onClick={() => setText(example)}
-                  >
-                    {example.length > 40
-                      ? example.substring(0, 40) + "..."
-                      : example}
-                  </Button>
-                ))}
-              </div>
-            </div>
+                {/* Enhanced Tokenizer Info */}
+                {currentTokenizer && (
+                  <div className="text-xs text-gray-600 space-y-1 p-3 bg-gray-50 rounded-lg">
+                    <p>
+                      <strong>Description:</strong>{" "}
+                      {currentTokenizer.description}
+                    </p>
+                    <p>
+                      <strong>Type:</strong> {currentTokenizer.tokenizerType}
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                      <p>
+                        <strong>Context:</strong>{" "}
+                        {currentTokenizer.contextWindow.toLocaleString()} tokens
+                      </p>
+                      <p>
+                        <strong>Output:</strong>{" "}
+                        {currentTokenizer.outputLimit.toLocaleString()} tokens
+                      </p>
+                    </div>
+                    {currentTokenizer.costPer1kTokens && (
+                      <p>
+                        <strong>Cost:</strong> $
+                        {currentTokenizer.costPer1kTokens.input}/1k input, $
+                        {currentTokenizer.costPer1kTokens.output}/1k output
+                      </p>
+                    )}
+                    {currentTokenizer.costPer1kTokens && (
+                      <p className="text-xs text-gray-500">
+                        <strong>(Per 1M):</strong> $
+                        {(
+                          currentTokenizer.costPer1kTokens.input * 1000
+                        ).toFixed(2)}
+                        /1M input, $
+                        {(
+                          currentTokenizer.costPer1kTokens.output * 1000
+                        ).toFixed(2)}
+                        /1M output
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mt-2">
+                      {currentTokenizer.imageTokens && (
+                        <Badge variant="outline" className="text-xs">
+                          Images: {currentTokenizer.imageTokens.small}-
+                          {currentTokenizer.imageTokens.large} tokens
+                        </Badge>
+                      )}
+                      {currentTokenizer.videoTokensPerSecond ? (
+                        <Badge variant="outline" className="text-xs">
+                          Video: {currentTokenizer.videoTokensPerSecond}/sec
+                        </Badge>
+                      ) : null}
+                      {currentTokenizer.audioTokensPerSecond ? (
+                        <Badge variant="outline" className="text-xs">
+                          Audio: {currentTokenizer.audioTokensPerSecond}/sec
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
 
-            <Button
-              onClick={saveAnalysis}
-              disabled={!text.trim() && !multimodalContent.imageCount}
-              className="w-full"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Save Analysis
-            </Button>
+                {/* Multimodal Content Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Image className="w-4 h-4" />
+                      Images
+                    </Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Count"
+                      value={multimodalContent.imageCount || ""}
+                      onChange={(e) =>
+                        setMultimodalContent((prev) => ({
+                          ...prev,
+                          imageCount: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="h-11"
+                      // Disabled if Anthropic has 0 width/height, or other providers have no imageToken support
+                      disabled={
+                        currentTokenizer?.provider === "Anthropic"
+                          ? multimodalContent.imageWidth === 0 ||
+                            multimodalContent.imageHeight === 0
+                          : !currentTokenizer?.imageTokens
+                      }
+                    />
+                    {currentTokenizer?.provider === "Anthropic" &&
+                    currentTokenizer.imageTokenizationMode === "formula" ? (
+                      <div className="space-y-2 mt-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="Width (px)"
+                          value={multimodalContent.imageWidth || ""}
+                          onChange={(e) =>
+                            setMultimodalContent((prev) => ({
+                              ...prev,
+                              imageWidth: parseInt(e.target.value) || 0,
+                            }))
+                          }
+                          className="h-11"
+                        />
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="Height (px)"
+                          value={multimodalContent.imageHeight || ""}
+                          onChange={(e) =>
+                            setMultimodalContent((prev) => ({
+                              ...prev,
+                              imageHeight: parseInt(e.target.value) || 0,
+                            }))
+                          }
+                          className="h-11"
+                        />
+                      </div>
+                    ) : currentTokenizer?.provider === "OpenAI" ? (
+                      <Select
+                        value={multimodalContent.imageSizeCategory}
+                        onValueChange={(value: "small" | "large") =>
+                          setMultimodalContent((prev) => ({
+                            ...prev,
+                            imageSizeCategory: value,
+                          }))
+                        }
+                        disabled={!currentTokenizer?.imageTokens}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small (≤384px)</SelectItem>
+                          <SelectItem value="large">
+                            Large ({">"}384px)
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-xs text-gray-500">
+                        Image sizing not applicable or supported.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <Video className="w-4 h-4" />
+                      Video (seconds)
+                    </Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Duration"
+                      value={multimodalContent.videoDurationSeconds || ""}
+                      onChange={(e) =>
+                        setMultimodalContent((prev) => ({
+                          ...prev,
+                          videoDurationSeconds: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      disabled={!currentTokenizer?.videoTokensPerSecond}
+                    />
+                    {!currentTokenizer?.videoTokensPerSecond && (
+                      <p className="text-xs text-gray-500">Not supported</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <AudioLines className="w-4 h-4" />
+                      Audio (seconds)
+                    </Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Duration"
+                      value={multimodalContent.audioDurationSeconds || ""}
+                      onChange={(e) =>
+                        setMultimodalContent((prev) => ({
+                          ...prev,
+                          audioDurationSeconds: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      disabled={!currentTokenizer?.audioTokensPerSecond}
+                    />
+                    {!currentTokenizer?.audioTokensPerSecond && (
+                      <p className="text-xs text-gray-500">Not supported</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Text Input */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="text-input">Text Content</Label>
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        accept=".txt"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="file-upload"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          document.getElementById("file-upload")?.click()
+                        }
+                      >
+                        <Upload className="w-4 h-4 mr-1" />
+                        Upload
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={exportAnalysis}
+                        disabled={!text.trim() && !multimodalContent.imageCount}
+                      >
+                        <Download className="w-4 h-4 mr-1" />
+                        Export
+                      </Button>
+                    </div>
+                  </div>
+                  <Textarea
+                    id="text-input"
+                    placeholder="Enter your text here to analyze tokens, characters, words, and more..."
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    className="min-h-[200px] resize-none"
+                  />
+                </div>
+
+                {/* Quick Examples */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Quick Examples</Label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {quickExamples.map((example, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        className="text-left justify-start text-xs h-auto p-3 hover:bg-gray-50 border-gray-200"
+                        onClick={() => setText(example)}
+                      >
+                        <div className="text-left leading-relaxed">
+                          {example}
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={saveAnalysis}
+                  disabled={!text.trim() && !multimodalContent.imageCount}
+                  className="w-full"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Save Analysis
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
 

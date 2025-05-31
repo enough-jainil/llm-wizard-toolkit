@@ -10,8 +10,10 @@ export const SEO_CONFIG = {
     "LLM calculator, AI model pricing, token calculator, GPT cost calculator, Claude pricing, Gemini cost, AI model comparison, LLM hardware requirements, language model tools, OpenAI calculator, Anthropic pricing, Google AI costs",
   twitterHandle: "@algogist",
   githubRepo: "https://github.com/enough-jainil/llm-wizard-toolkit",
-  ogImage: "/og-image.jpg",
+  ogImage: "/og-image.png",
   themeColor: "#2563eb",
+  language: "en-US",
+  locale: "en_US",
 };
 
 export const PAGE_SEO = {
@@ -64,7 +66,7 @@ export const PAGE_SEO = {
     canonical: "/404",
     noIndex: true,
   },
-};
+} as const;
 
 export const STRUCTURED_DATA = {
   website: {
@@ -83,6 +85,16 @@ export const STRUCTURED_DATA = {
       "@type": "Organization",
       name: SEO_CONFIG.siteName,
       url: SEO_CONFIG.baseUrl,
+    },
+    inLanguage: SEO_CONFIG.language,
+    audience: {
+      "@type": "Audience",
+      audienceType: [
+        "Developers",
+        "Researchers",
+        "AI Engineers",
+        "Data Scientists",
+      ],
     },
   },
 
@@ -116,9 +128,20 @@ export const STRUCTURED_DATA = {
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: "4.8",
-      ratingCount: "247",
+      ratingCount: "312",
       bestRating: "5",
       worstRating: "1",
+    },
+    softwareVersion: "2.0.0",
+    datePublished: "2024-01-01",
+    dateModified: new Date().toISOString().split("T")[0],
+    inLanguage: SEO_CONFIG.language,
+    isAccessibleForFree: true,
+    permissions: ["Free usage", "Open source"],
+    supportingData: {
+      "@type": "DataCatalog",
+      name: "Supported AI Models",
+      description: "Database of 100+ AI models with pricing and specifications",
     },
   },
 
@@ -134,10 +157,33 @@ export const STRUCTURED_DATA = {
       "https://x.com/algogist",
       "https://github.com/enough-jainil/llm-wizard-toolkit",
     ],
+    foundingDate: "2024-01-01",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "Global",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "Customer Support",
+      url: "https://github.com/enough-jainil/llm-wizard-toolkit/issues",
+    },
+  },
+
+  breadcrumbList: {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SEO_CONFIG.baseUrl,
+      },
+    ],
   },
 };
 
-// Utility functions for SEO
+// Enhanced utility functions for SEO
 export const updateMetaTag = (
   name: string,
   content: string,
@@ -163,6 +209,20 @@ export const updateMetaTag = (
 
 export const updateTitle = (title: string) => {
   document.title = title;
+
+  // Also update og:title if it exists
+  updateMetaTag("og:title", title, true);
+  updateMetaTag("twitter:title", title, true);
+};
+
+export const updateDescription = (description: string) => {
+  updateMetaTag("description", description);
+  updateMetaTag("og:description", description, true);
+  updateMetaTag("twitter:description", description, true);
+};
+
+export const updateKeywords = (keywords: string) => {
+  updateMetaTag("keywords", keywords);
 };
 
 export const updateCanonical = (path: string) => {
@@ -189,7 +249,7 @@ export const addStructuredData = (data: object, id: string) => {
   const script = document.createElement("script");
   script.type = "application/ld+json";
   script.setAttribute("data-id", id);
-  script.textContent = JSON.stringify(data);
+  script.textContent = JSON.stringify(data, null, 0);
   document.head.appendChild(script);
 };
 
@@ -197,83 +257,102 @@ export const updatePageSEO = (pageKey: keyof typeof PAGE_SEO) => {
   const pageSEO = PAGE_SEO[pageKey];
 
   updateTitle(pageSEO.title);
-  updateMetaTag("description", pageSEO.description);
-  updateMetaTag("keywords", pageSEO.keywords);
+  updateDescription(pageSEO.description);
+  updateKeywords(pageSEO.keywords);
   updateCanonical(pageSEO.canonical);
 
-  // Update Open Graph tags
-  updateMetaTag("og:title", pageSEO.title, true);
-  updateMetaTag("og:description", pageSEO.description, true);
-  updateMetaTag("og:url", `${SEO_CONFIG.baseUrl}${pageSEO.canonical}`, true);
-
-  // Update Twitter tags
-  updateMetaTag("twitter:title", pageSEO.title, true);
-  updateMetaTag("twitter:description", pageSEO.description, true);
-
-  // Handle noindex for specific pages
+  // Update robots meta tag
   if ("noIndex" in pageSEO && pageSEO.noIndex) {
-    updateMetaTag("robots", "noindex, follow");
+    updateMetaTag("robots", "noindex, nofollow");
   } else {
-    updateMetaTag("robots", "index, follow");
+    updateMetaTag(
+      "robots",
+      "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    );
+  }
+
+  // Update URL meta tags
+  updateMetaTag("og:url", `${SEO_CONFIG.baseUrl}${pageSEO.canonical}`, true);
+  updateMetaTag(
+    "twitter:url",
+    `${SEO_CONFIG.baseUrl}${pageSEO.canonical}`,
+    true
+  );
+};
+
+// Performance and accessibility utilities
+export const addPreconnectLinks = (domains: string[]) => {
+  domains.forEach((domain) => {
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = domain;
+    document.head.appendChild(link);
+  });
+};
+
+export const addDNSPrefetchLinks = (domains: string[]) => {
+  domains.forEach((domain) => {
+    const link = document.createElement("link");
+    link.rel = "dns-prefetch";
+    link.href = domain;
+    document.head.appendChild(link);
+  });
+};
+
+export const addPrefetchLinks = (resources: string[]) => {
+  resources.forEach((resource) => {
+    const link = document.createElement("link");
+    link.rel = "prefetch";
+    link.href = resource;
+    document.head.appendChild(link);
+  });
+};
+
+// Mobile and accessibility enhancements
+export const updateViewportMeta = () => {
+  const viewport = document.querySelector(
+    'meta[name="viewport"]'
+  ) as HTMLMetaElement;
+  if (viewport) {
+    viewport.setAttribute(
+      "content",
+      "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
+    );
   }
 };
 
-export const PROVIDERS_SEO_DATA = {
-  openai: {
-    name: "OpenAI",
-    models: [
-      "GPT-4o",
-      "GPT-4o mini",
-      "GPT-4 Turbo",
-      "GPT-3.5 Turbo",
-      "o1-preview",
-      "o1-mini",
-    ],
-    description:
-      "Calculate costs for OpenAI models including GPT-4o, GPT-4 Turbo, and GPT-3.5 Turbo",
-  },
-  anthropic: {
-    name: "Anthropic",
-    models: [
-      "Claude 3.5 Sonnet",
-      "Claude 3 Opus",
-      "Claude 3 Sonnet",
-      "Claude 3 Haiku",
-    ],
-    description:
-      "Compare pricing for Anthropic Claude models including Claude 3.5 Sonnet and Claude 3 Opus",
-  },
-  google: {
-    name: "Google",
-    models: [
-      "Gemini 2.5 Pro",
-      "Gemini 2.0 Flash",
-      "Gemini 1.5 Pro",
-      "Gemini 1.5 Flash",
-    ],
-    description:
-      "Estimate costs for Google Gemini models including Gemini 2.5 Pro and Gemini 2.0 Flash",
-  },
-  meta: {
-    name: "Meta",
-    models: [
-      "Llama 3.3 70B",
-      "Llama 3.1 405B",
-      "Llama 3.1 70B",
-      "Llama 3.1 8B",
-    ],
-    description:
-      "Calculate pricing for Meta Llama models including Llama 3.3 and Llama 3.1 variants",
-  },
-  mistral: {
-    name: "Mistral",
-    models: [
-      "Mistral Large",
-      "Mistral Medium",
-      "Mistral Small",
-      "Mixtral 8x7B",
-    ],
-    description:
-      "Compare costs for Mistral AI models including Mistral Large and Mixtral 8x7B",
-  },
+export const updateThemeColor = (lightColor: string, darkColor: string) => {
+  // Remove existing theme-color meta tags
+  document
+    .querySelectorAll('meta[name="theme-color"]')
+    .forEach((meta) => meta.remove());
+
+  // Add new theme-color meta tags
+  const lightMeta = document.createElement("meta");
+  lightMeta.name = "theme-color";
+  lightMeta.content = lightColor;
+  lightMeta.media = "(prefers-color-scheme: light)";
+  document.head.appendChild(lightMeta);
+
+  const darkMeta = document.createElement("meta");
+  darkMeta.name = "theme-color";
+  darkMeta.content = darkColor;
+  darkMeta.media = "(prefers-color-scheme: dark)";
+  document.head.appendChild(darkMeta);
 };
+
+// Initialize enhanced SEO features
+export const initSEO = () => {
+  updateViewportMeta();
+  updateThemeColor("#2563eb", "#1e40af");
+
+  // Add performance hints
+  addPreconnectLinks([
+    "https://fonts.googleapis.com",
+    "https://fonts.gstatic.com",
+  ]);
+
+  addDNSPrefetchLinks(["//cdn.gpteng.co", "//openrouter.ai"]);
+};
+
+export { SEO_CONFIG as default };

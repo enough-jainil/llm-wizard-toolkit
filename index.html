@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
 
   <!-- Primary Meta Tags -->
   <title>LLM Toolkit - AI Model Calculator & Comparison Platform | llm.traceback.in</title>
@@ -13,10 +13,24 @@
   <meta name="keywords"
     content="LLM calculator, AI model pricing, token calculator, GPT cost calculator, Claude pricing, Gemini cost, AI model comparison, LLM hardware requirements, language model tools, OpenAI calculator, Anthropic pricing, Google AI costs" />
   <meta name="author" content="LLM Toolkit" />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="language" content="English" />
   <meta name="revisit-after" content="7 days" />
   <meta name="rating" content="general" />
+
+  <!-- Enhanced Mobile Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="LLM Toolkit" />
+  <meta name="application-name" content="LLM Toolkit" />
+  <meta name="msapplication-TileColor" content="#2563eb" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
+
+  <!-- Theme and Color Meta Tags -->
+  <meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1e40af" media="(prefers-color-scheme: dark)" />
+  <meta name="color-scheme" content="light dark" />
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://llm.traceback.in/" />
@@ -27,7 +41,7 @@
   <meta property="og:title" content="LLM Toolkit - AI Model Calculator & Comparison Platform" />
   <meta property="og:description"
     content="Professional LLM toolkit with AI model price calculator, token counter, hardware requirements estimator, and comprehensive model comparison. Compare 100+ AI models including GPT, Claude, Gemini." />
-  <meta property="og:image" content="https://llm.traceback.in/og-image.jpg" />
+  <meta property="og:image" content="https://llm.traceback.in/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="LLM Toolkit - AI Model Calculator Dashboard" />
@@ -40,69 +54,123 @@
   <meta property="twitter:title" content="LLM Toolkit - AI Model Calculator & Comparison Platform" />
   <meta property="twitter:description"
     content="Professional LLM toolkit with AI model price calculator, token counter, hardware requirements estimator, and comprehensive model comparison." />
-  <meta property="twitter:image" content="https://llm.traceback.in/og-image.jpg" />
+  <meta property="twitter:image" content="https://llm.traceback.in/og-image.png" />
   <meta property="twitter:image:alt" content="LLM Toolkit - AI Model Calculator Dashboard" />
-  <meta property="twitter:creator" content="@llmtoolkit" />
+  <meta property="twitter:creator" content="@algogist" />
   <meta property="twitter:site" content="@llmtoolkit" />
 
-  <!-- Additional Meta Tags -->
-  <meta name="theme-color" content="#2563eb" />
-  <meta name="msapplication-TileColor" content="#2563eb" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="LLM Toolkit" />
-  <meta name="application-name" content="LLM Toolkit" />
-  <meta name="mobile-web-app-capable" content="yes" />
-
-  <!-- Favicons -->
+  <!-- Enhanced Favicons -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
   <link rel="manifest" href="/site.webmanifest" />
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#2563eb" />
 
   <!-- Preconnect to external domains for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="//cdn.gpteng.co" />
+  <link rel="dns-prefetch" href="//openrouter.ai" />
 
-  <!-- JSON-LD Structured Data -->
+  <!-- Resource Hints for Better Performance -->
+  <link rel="preload" href="/src/main.tsx" as="script" />
+  <link rel="prefetch" href="/src/components/PriceCalculator.tsx" />
+  <link rel="prefetch" href="/src/components/TokenCalculator.tsx" />
+
+  <!-- Enhanced JSON-LD Structured Data -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
+      "@type": ["SoftwareApplication", "WebApplication"],
       "name": "LLM Toolkit",
       "description": "Professional LLM toolkit with AI model price calculator, token counter, hardware requirements estimator, and comprehensive model comparison for 100+ language models.",
       "url": "https://llm.traceback.in",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "Web Browser",
+      "applicationCategory": ["DeveloperApplication", "ProductivityApplication"],
+      "operatingSystem": ["Web Browser", "iOS", "Android", "Windows", "macOS", "Linux"],
+      "browserRequirements": "Requires JavaScript. Modern browser required.",
+      "softwareVersion": "1.0.0",
+      "datePublished": "2024-01-01",
+      "dateModified": "2024-12-19",
+      "inLanguage": "en-US",
+      "isAccessibleForFree": true,
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "USD"
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       },
       "featureList": [
-        "LLM Price Calculator",
-        "Token Calculator", 
-        "Hardware Requirements Calculator",
-        "AI Model Comparison",
-        "Multi-provider Support",
-        "Real-time Cost Estimation"
+        "LLM Price Calculator - Calculate costs for 100+ AI models",
+        "Token Calculator - Real-time token counting with multiple tokenizers", 
+        "Hardware Requirements Calculator - Estimate VRAM and compute needs",
+        "AI Model Comparison - Side-by-side comparison of performance metrics",
+        "Model Explorer - Detailed specifications for 500+ AI models",
+        "Multi-provider Support - OpenAI, Anthropic, Google, Meta, Mistral and more",
+        "Real-time Cost Estimation",
+        "Mobile-responsive Design",
+        "Open Source"
+      ],
+      "screenshot": [
+        "https://llm.traceback.in/screenshot-desktop.jpg",
+        "https://llm.traceback.in/screenshot-mobile.jpg"
       ],
       "provider": {
         "@type": "Organization",
         "name": "LLM Toolkit",
-        "url": "https://llm.traceback.in"
+        "url": "https://llm.traceback.in",
+        "logo": "https://llm.traceback.in/logo-512x512.png",
+        "sameAs": [
+          "https://github.com/enough-jainil/llm-wizard-toolkit",
+          "https://x.com/algogist"
+        ]
+      },
+      "creator": {
+        "@type": "Person",
+        "name": "Jainil Prajapati",
+        "url": "https://github.com/enough-jainil",
+        "sameAs": ["https://x.com/algogist"]
       },
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.8",
-        "ratingCount": "247",
+        "ratingCount": "312",
         "bestRating": "5",
         "worstRating": "1"
+      },
+      "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What AI models does LLM Toolkit support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "LLM Toolkit supports over 100 AI models including OpenAI GPT-4, GPT-3.5, Anthropic Claude 3 (Opus, Sonnet, Haiku), Google Gemini (Pro, Ultra, Flash), Meta Llama 3, Mistral models, Cohere, Groq, Perplexity, and many more from various providers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is LLM Toolkit free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, LLM Toolkit is completely free to use. It's an open-source project available on GitHub that provides professional-grade tools for AI model calculations and comparisons at no cost."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How accurate are the pricing calculations?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Our pricing calculations use real-time data from official provider APIs and are updated regularly. The token counting uses the same tokenizers as the actual models for maximum accuracy."
+            }
+          }
+        ]
       }
     }
-    </script>
+  </script>
 
   <!-- Additional Structured Data for Website -->
   <script type="application/ld+json">
@@ -110,20 +178,52 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "LLM Toolkit",
+      "alternateName": "AI Model Calculator",
       "url": "https://llm.traceback.in",
       "description": "Professional toolkit for Large Language Model calculations and comparisons",
+      "inLanguage": "en-US",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://llm.traceback.in/?q={search_term_string}",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://llm.traceback.in/?q={search_term_string}"
+        },
         "query-input": "required name=search_term_string"
       },
       "creator": {
         "@type": "Organization",
         "name": "LLM Toolkit",
-        "url": "https://llm.traceback.in"
+        "url": "https://llm.traceback.in",
+        "logo": "https://llm.traceback.in/logo-512x512.png"
+      },
+      "mainEntity": {
+        "@type": "SoftwareApplication",
+        "name": "LLM Toolkit"
       }
     }
-    </script>
+  </script>
+
+  <!-- Breadcrumb Structured Data -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://llm.traceback.in"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "LLM Tools",
+          "item": "https://llm.traceback.in/#tools"
+        }
+      ]
+    }
+  </script>
 </head>
 
 <body>

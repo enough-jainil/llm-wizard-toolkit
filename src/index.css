@@ -97,24 +97,109 @@
 
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Mobile-specific improvements */
+  /* Enhanced Mobile-First Design System */
+  html {
+    /* Better font scaling for mobile */
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+
+  /* Enhanced Touch Targets & Interaction */
+  button,
+  [role="button"],
+  [role="tab"],
+  input,
+  select,
+  textarea,
+  .interactive-element {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* Allow text selection for input elements */
+  input,
+  textarea,
+  [contenteditable] {
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+  }
+
+  /* Better Input Handling for Mobile */
+  input,
+  textarea,
+  select {
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    transform: scale(1.02);
+  }
+
+  /* Enhanced Scrolling Experience */
+  .scroll-container,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+
+  .scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  .scroll-container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  .contain-layout {
+    contain: layout;
+  }
+
+  .contain-paint {
+    contain: paint;
+  }
+
+  /* Mobile-Optimized Typography and Spacing */
   @media (max-width: 768px) {
-    /* Improve touch targets */
-    button,
-    [role="button"],
-    input,
-    select,
-    textarea {
-      min-height: 44px;
-    }
-
-    /* Better text sizing for mobile */
-    html {
-      font-size: 16px;
-    }
-
     /* Prevent zoom on input focus for iOS */
     input[type="color"],
     input[type="date"],
@@ -130,21 +215,96 @@
     input[type="time"],
     input[type="url"],
     input[type="week"],
-    select:focus,
+    select,
     textarea {
-      font-size: 16px;
+      font-size: 16px !important;
     }
 
-    /* Improve scrolling on mobile */
-    .overflow-y-auto,
-    .overflow-x-auto {
+    /* Improved mobile spacing */
+    .card-mobile-spacing {
+      padding: 1rem;
+    }
+
+    /* Enhanced mobile button styles */
+    button,
+    [role="button"] {
+      min-height: 48px;
+      padding: 12px 16px;
+      font-weight: 500;
+    }
+
+    /* Mobile grid utilities */
+    .mobile-grid-1 {
+      grid-template-columns: 1fr;
+    }
+
+    .mobile-grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Enhanced mobile table experience */
+    .table-mobile-scroll {
+      overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Better tap highlighting */
-    .touch-manipulation {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    .table-mobile-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .table-mobile-scroll table {
+      min-width: 100%;
+    }
+
+    /* Better mobile form layouts */
+    .form-mobile-stack {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-mobile-stack > * {
+      margin-bottom: 1rem;
+    }
+
+    /* Mobile-specific animations */
+    .mobile-bounce {
+      animation: mobile-bounce 0.3s ease-in-out;
+    }
+
+    @keyframes mobile-bounce {
+      0%,
+      100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(0.98);
+      }
+    }
+  }
+
+  /* Tablet optimizations */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .tablet-grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tablet-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Desktop enhancements */
+  @media (min-width: 1025px) {
+    .desktop-hover-effects:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Enhanced desktop button interactions */
+    button:hover,
+    [role="button"]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
   }
 
@@ -164,5 +324,186 @@
     .border {
       border-width: 2px;
     }
+
+    button,
+    [role="button"] {
+      border: 2px solid currentColor;
+    }
+  }
+
+  /* Improved focus styles */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Dark mode improvements */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    * {
+      color: black !important;
+      background: white !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+  }
+
+  /* Enhanced component styles */
+  .card-enhanced {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .button-enhanced {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .button-enhanced::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  .button-enhanced:hover::before {
+    left: 100%;
+  }
+
+  .button-enhanced:active::before {
+    display: none;
+  }
+
+  /* Touch-friendly improvements */
+  .touch-friendly {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 16px;
+  }
+
+  /* Loading states */
+  .loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Safe area handling for mobile devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Better responsive text utilities */
+  .text-responsive-xs {
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
+  }
+
+  .text-responsive-sm {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+  }
+
+  .text-responsive-base {
+    font-size: clamp(1rem, 3vw, 1.125rem);
+  }
+
+  .text-responsive-lg {
+    font-size: clamp(1.125rem, 3.5vw, 1.25rem);
+  }
+
+  .text-responsive-xl {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+  }
+
+  /* Enhanced grid utilities */
+  .grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .grid-auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Enhanced focus management */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  /* Better form validation styles */
+  .input-error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+  }
+
+  .input-success {
+    @apply border-green-500 focus:border-green-500 focus:ring-green-500;
   }
 }

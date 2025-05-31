@@ -1,3 +1,7 @@
+// Static model data commented out to test OpenRouter integration
+// All model data will now come from OpenRouter API
+
+/*
 import anthropicModelsFromJson from "./anthropic/anthropic_models.json";
 import openAiModelsFromJson from "./openai/openai_models.json";
 import googleModelsFromJson from "./google/google_models.json";
@@ -14,6 +18,7 @@ import replicateModelsFromJson from "./replicate/replicate_models.json";
 import xaiModelsFromJson from "./xai/xai_models.json";
 import microsoftModelsFromJson from "./microsoft/microsoft_models.json";
 import alibabaCloudModelsFromJson from "./alibaba/alibaba_cloud_models.json"; // Corrected path
+*/
 
 // Define a more structured type for raw JSON input to mappers
 interface RawModelInput {
@@ -98,6 +103,7 @@ export interface TokenizerInfo {
   license?: string;
 }
 
+/*
 // --- Helper to parse context window string/number (e.g., "128K", "1M", 1000000) to number ---
 const parseContextWindowToNumber = (
   cw?: string | number,
@@ -314,3 +320,9 @@ export const uniqueTokenizerData = allRawTokenizerData.reduce(
   },
   [] as TokenizerInfo[]
 );
+*/
+
+// Empty exports to prevent breaking imports - all data now comes from OpenRouter
+export const modelPricingData: ModelPricing[] = [];
+export const uniqueModelComparisonData: ModelData[] = [];
+export const uniqueTokenizerData: TokenizerInfo[] = [];
