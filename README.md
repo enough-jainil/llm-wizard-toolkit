@@ -1,33 +1,23 @@
-# Welcome to your Lovable project
+# LLM Wizard Toolkit
+
+## Special Thanks 💖
+
+**Special thanks to [OpenRouter](https://openrouter.ai/) for their amazing service and providing free API access! This project wouldn't be possible without their generous support.**
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/280543b7-a0eb-4bea-8b56-f9ebff0712b0
+This is a comprehensive toolkit for working with various LLM providers and models.
 
 ## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/280543b7-a0eb-4bea-8b56-f9ebff0712b0) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 Follow these steps:
 
 ```sh
 # Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone https://github.com/enough-jainil/llm-wizard-toolkit.git
 
 # Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+cd llm-wizard-toolkit
 
 # Step 3: Install the necessary dependencies.
 npm i
@@ -60,14 +50,40 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## Want to Contribute? 🤝
 
-Simply open [Lovable](https://lovable.dev/projects/280543b7-a0eb-4bea-8b56-f9ebff0712b0) and click on Share -> Publish.
+We'd love your help in making this project even better! Here's how you can get involved:
 
-## Can I connect a custom domain to my Lovable project?
+### How to Contribute
 
-Yes, you can!
+- 🍴 Fork the repository
+- 🌟 Give us a star if you find this project useful!
+- 🐛 Report bugs or suggest features via GitHub Issues
+- 💻 Submit pull requests with improvements
+- 📖 Help improve documentation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🔗 Connect With Us
+
+<div align="center">
+
+### Follow for Updates & Support
+
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/enough-jainil/llm-wizard-toolkit)
+[![Twitter](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/algogist)
+
+### Show Your Support
+
+⭐ **Star this repository** if you find it helpful!  
+🐛 **Report issues** to help us improve  
+💡 **Suggest features** for future development  
+🤝 **Contribute** to make it even better
+
+---
+
+**Made with ❤️ by the LLM Wizard Toolkit Team**
+
+_Your contributions, no matter how small, make a big difference! 💖_
+
+</div>
