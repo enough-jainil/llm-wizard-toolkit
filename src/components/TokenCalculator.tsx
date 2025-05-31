@@ -49,10 +49,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { get_encoding, encoding_for_model, Tiktoken } from "tiktoken";
-import {
-  uniqueTokenizerData,
-  TokenizerInfo,
-} from "../../models/modelDataConverter";
+import { useOpenRouterModelComparison } from "@/hooks/useOpenRouterModelComparison";
 
 interface AnalysisEntry {
   id: number;
@@ -81,7 +78,28 @@ interface AnalysisEntry {
   timestamp: string;
 }
 
-const tokenizers: TokenizerInfo[] = uniqueTokenizerData;
+interface TokenizerInfo {
+  name: string;
+  provider: string;
+  avgTokensPerWord: number;
+  avgCharsPerToken: number;
+  description: string;
+  contextWindow: number;
+  outputLimit: number;
+  imageTokens?: {
+    small: number;
+    large: number;
+  };
+  imageTokenizationMode?: "fixed" | "formula" | "none";
+  videoTokensPerSecond?: number;
+  audioTokensPerSecond?: number;
+  tokenizerType: string;
+  costPer1kTokens?: {
+    input: number;
+    output: number;
+  };
+  license?: string;
+}
 
 // Initialize o200k_base encoder for OpenAI models that use it (GPT-4o, GPT-4.1 variants, o3, o4-mini)
 // We are doing this outside the component to avoid re-initializing on every render.
@@ -94,9 +112,123 @@ try {
   // Fallback or error handling if encoder can't be initialized
 }
 
+// Convert OpenRouter model to TokenizerInfo
+const convertToTokenizerInfo = (model: {
+  name: string;
+  provider: string;
+  contextWindow: number;
+  inputCost: number;
+  outputCost: number;
+  multimodal: boolean;
+  parameters: string;
+  speed: number;
+  reasoning: number;
+  coding: number;
+  creative: number;
+  languages: number;
+  category: string;
+  license?: string;
+}): TokenizerInfo => {
+  // Extract provider from model ID
+  const provider = model.provider || "Unknown";
+
+  // Estimate tokens per word and chars per token based on provider
+  let avgTokensPerWord = 1.3;
+  let avgCharsPerToken = 4;
+  let tokenizerType = "BPE";
+
+  switch (provider) {
+    case "OpenAI":
+      avgTokensPerWord = 1.3;
+      avgCharsPerToken = 4;
+      tokenizerType = "tiktoken (o200k_base)";
+      break;
+    case "Anthropic":
+      avgTokensPerWord = 1.2;
+      avgCharsPerToken = 4.2;
+      tokenizerType = "Claude tokenizer";
+      break;
+    case "Google":
+      avgTokensPerWord = 1.1;
+      avgCharsPerToken = 4.5;
+      tokenizerType = "SentencePiece";
+      break;
+    case "xAI":
+      avgTokensPerWord = 1.35;
+      avgCharsPerToken = 3.8;
+      tokenizerType = "Grok tokenizer";
+      break;
+    default:
+      avgTokensPerWord = 1.3;
+      avgCharsPerToken = 4;
+      tokenizerType = "BPE";
+  }
+
+  // Set multimodal capabilities based on provider and model
+  let imageTokens: { small: number; large: number } | undefined;
+  let imageTokenizationMode: "fixed" | "formula" | "none" | undefined;
+  let videoTokensPerSecond: number | undefined;
+  let audioTokensPerSecond: number | undefined;
+
+  if (model.multimodal) {
+    switch (provider) {
+      case "OpenAI":
+        imageTokens = { small: 85, large: 170 };
+        imageTokenizationMode = "fixed";
+        break;
+      case "Anthropic":
+        // Claude uses formula: (width * height) / 750
+        imageTokenizationMode = "formula";
+        break;
+      case "Google":
+        imageTokens = { small: 258, large: 516 };
+        imageTokenizationMode = "fixed";
+        break;
+      case "xAI":
+        imageTokens = { small: 896, large: 1792 };
+        imageTokenizationMode = "fixed";
+        break;
+      default:
+        imageTokens = { small: 100, large: 200 };
+        imageTokenizationMode = "fixed";
+    }
+  }
+
+  return {
+    name: model.name,
+    provider: provider,
+    avgTokensPerWord,
+    avgCharsPerToken,
+    description: `${
+      model.name
+    } - ${provider} tokenizer with ${model.contextWindow.toLocaleString()} token context`,
+    contextWindow: model.contextWindow,
+    outputLimit: Math.min(model.contextWindow, 4096), // Conservative output limit
+    imageTokens,
+    imageTokenizationMode,
+    videoTokensPerSecond,
+    audioTokensPerSecond,
+    tokenizerType,
+    costPer1kTokens: {
+      input: model.inputCost,
+      output: model.outputCost,
+    },
+    license: model.license,
+  };
+};
+
 const TokenCalculator = () => {
+  // Use OpenRouter models hook
+  const { models: openRouterModels, isLoading: isLoadingModels } =
+    useOpenRouterModelComparison();
+
+  // Convert OpenRouter models to tokenizer info
+  const tokenizers: TokenizerInfo[] = openRouterModels.map(
+    convertToTokenizerInfo
+  );
+
   const [text, setText] = useState("");
-  const [selectedTokenizer, setSelectedTokenizer] = useState("GPT-4o"); // Initialize with a valid model name from the new list
+  const [selectedTokenizer, setSelectedTokenizer] = useState(""); // Will be set when models load
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisEntry[]>([]);
   const [historySearchTerm, setHistorySearchTerm] = useState<string>("");
   const [isTokenizerSelectOpen, setIsTokenizerSelectOpen] =
@@ -112,6 +244,21 @@ const TokenCalculator = () => {
   const [expectedOutputWords, setExpectedOutputWords] = useState(0);
 
   const currentTokenizer = tokenizers.find((t) => t.name === selectedTokenizer);
+
+  // Set default tokenizer when models load
+  useEffect(() => {
+    if (tokenizers.length > 0 && !selectedTokenizer) {
+      // Try to find GPT-4o or similar, otherwise use first available
+      const defaultTokenizer =
+        tokenizers.find(
+          (t) =>
+            t.name.toLowerCase().includes("gpt-4o") ||
+            t.name.toLowerCase().includes("gpt-4")
+        ) || tokenizers[0];
+
+      setSelectedTokenizer(defaultTokenizer.name);
+    }
+  }, [tokenizers, selectedTokenizer]);
 
   const clearHistorySearch = () => {
     setHistorySearchTerm("");
@@ -404,6 +551,7 @@ const TokenCalculator = () => {
             <CardDescription>
               Provider-specific tokenization with multimodal support and cost
               estimation
+              {isLoadingModels && " • Loading models..."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -420,12 +568,15 @@ const TokenCalculator = () => {
                     role="combobox"
                     aria-expanded={isTokenizerSelectOpen}
                     className="w-full justify-between h-auto min-h-[44px] text-left"
+                    disabled={isLoadingModels}
                   >
                     <span className="truncate">
                       {selectedTokenizer
                         ? tokenizers.find(
                             (tokenizer) => tokenizer.name === selectedTokenizer
                           )?.name
+                        : isLoadingModels
+                        ? "Loading models..."
                         : "Choose a tokenizer..."}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
