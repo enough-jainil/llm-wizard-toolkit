@@ -165,36 +165,6 @@ const formatContextWindow = (contextLength: number): string => {
   return contextLength.toString();
 };
 
-// Estimate model parameters based on context window and model characteristics
-const estimateParameters = (model: OpenRouterModel): string => {
-  const name = model.name.toLowerCase();
-
-  // Try to extract from name first
-  if (name.includes("405b")) return "405B";
-  if (name.includes("70b")) return "70B";
-  if (name.includes("8b")) return "8B";
-  if (name.includes("7b")) return "7B";
-  if (name.includes("3b")) return "3B";
-  if (name.includes("1b")) return "1B";
-
-  // Estimate based on known models
-  if (name.includes("gpt-4")) return "1.76T";
-  if (name.includes("gpt-3.5")) return "175B";
-  if (name.includes("claude-3.5") || name.includes("claude-3-opus"))
-    return "~175B";
-  if (name.includes("claude-3-sonnet")) return "~100B";
-  if (name.includes("claude-3-haiku")) return "~20B";
-  if (name.includes("gemini-2") || name.includes("gemini-1.5-pro"))
-    return "~175B";
-  if (name.includes("gemini-1.5-flash")) return "~8B";
-
-  // Default estimate based on context window
-  if (model.context_length >= 1000000) return "175B+";
-  if (model.context_length >= 200000) return "70B-175B";
-  if (model.context_length >= 32000) return "7B-70B";
-  return "Unknown";
-};
-
 // Check if model supports multimodal input
 const isMultimodal = (model: OpenRouterModel): boolean => {
   return (
@@ -204,28 +174,6 @@ const isMultimodal = (model: OpenRouterModel): boolean => {
     model.description.toLowerCase().includes("vision") ||
     model.description.toLowerCase().includes("multimodal")
   );
-};
-
-// Estimate language support based on model characteristics
-const estimateLanguageSupport = (model: OpenRouterModel): number => {
-  const name = model.name.toLowerCase();
-
-  // High language support models
-  if (
-    name.includes("gpt-4") ||
-    name.includes("claude-3") ||
-    name.includes("gemini")
-  ) {
-    return 100;
-  }
-
-  // Medium language support
-  if (name.includes("llama") || name.includes("mistral")) {
-    return 50;
-  }
-
-  // Default
-  return 20;
 };
 
 // Convert OpenRouter model to our internal format
@@ -253,16 +201,16 @@ const convertToModelData = (model: OpenRouterModel): ModelData => {
   return {
     name: model.name,
     provider: extractProvider(model.id),
-    parameters: estimateParameters(model),
+    parameters: "Unknown", // OpenRouter API doesn't provide parameter counts
     contextWindow: model.context_length,
     inputCost: inputCost,
     outputCost: outputCost,
-    speed: 75, // Default speed score - we don't have this data from OpenRouter
-    reasoning: 75, // Default reasoning score
-    coding: 75, // Default coding score
-    creative: 75, // Default creative score
+    speed: 0, // Not provided by OpenRouter API
+    reasoning: 0, // Not provided by OpenRouter API
+    coding: 0, // Not provided by OpenRouter API
+    creative: 0, // Not provided by OpenRouter API
     multimodal: isMultimodal(model),
-    languages: estimateLanguageSupport(model),
+    languages: 0, // Not provided by OpenRouter API
     category: categorizeModel(model),
     license: undefined, // OpenRouter doesn't provide license info
   };

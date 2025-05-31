@@ -34,7 +34,7 @@ const ModelComparison = () => {
         : "",
     ].filter(Boolean) as string[]
   );
-  const [sortBy, setSortBy] = useState<keyof ModelData>("reasoning");
+  const [sortBy, setSortBy] = useState<keyof ModelData>("inputCost");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterProviders, setFilterProviders] = useState<string[]>(["all"]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -61,9 +61,7 @@ const ModelComparison = () => {
       searchMatch =
         model.name.toLowerCase().includes(searchLower) ||
         model.provider.toLowerCase().includes(searchLower) ||
-        model.category.toLowerCase().includes(searchLower) ||
-        model.parameters.toLowerCase().includes(searchLower) ||
-        (model.license && model.license.toLowerCase().includes(searchLower));
+        model.category.toLowerCase().includes(searchLower);
     }
 
     return categoryMatch && providerMatch && searchMatch;
@@ -173,7 +171,7 @@ const ModelComparison = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Search models by name, provider, category, parameters, or license..."
+                  placeholder="Search models by name, provider, category..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-10 h-11"
@@ -334,7 +332,6 @@ const ModelComparison = () => {
                             </Badge>
                           </div>
                           <div className="text-xs text-gray-600">
-                            {model.parameters} •{" "}
                             {model.contextWindow.toLocaleString()} context
                           </div>
                         </div>
@@ -384,14 +381,6 @@ const ModelComparison = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b">
-                    <td className="p-3 font-medium">Parameters</td>
-                    {selectedModelData.map((model) => (
-                      <td key={model.name} className="p-3 text-center">
-                        {model.parameters}
-                      </td>
-                    ))}
-                  </tr>
                   <tr className="border-b">
                     <td className="p-3 font-medium">Context Window</td>
                     {selectedModelData.map((model) => (
@@ -445,62 +434,6 @@ const ModelComparison = () => {
                     ))}
                   </tr>
                   <tr className="border-b">
-                    <td className="p-3 font-medium">Speed Score</td>
-                    {selectedModelData.map((model) => (
-                      <td key={model.name} className="p-3 text-center">
-                        <div
-                          className={`font-semibold ${getScoreColor(
-                            model.speed
-                          )}`}
-                        >
-                          {model.speed}/150
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-3 font-medium">Reasoning</td>
-                    {selectedModelData.map((model) => (
-                      <td key={model.name} className="p-3 text-center">
-                        <div
-                          className={`font-semibold ${getScoreColor(
-                            model.reasoning
-                          )}`}
-                        >
-                          {model.reasoning}/100
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-3 font-medium">Coding</td>
-                    {selectedModelData.map((model) => (
-                      <td key={model.name} className="p-3 text-center">
-                        <div
-                          className={`font-semibold ${getScoreColor(
-                            model.coding
-                          )}`}
-                        >
-                          {model.coding}/100
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-3 font-medium">Creative Writing</td>
-                    {selectedModelData.map((model) => (
-                      <td key={model.name} className="p-3 text-center">
-                        <div
-                          className={`font-semibold ${getScoreColor(
-                            model.creative
-                          )}`}
-                        >
-                          {model.creative}/100
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
                     <td className="p-3 font-medium">Multimodal</td>
                     {selectedModelData.map((model) => (
                       <td key={model.name} className="p-3 text-center">
@@ -511,22 +444,6 @@ const ModelComparison = () => {
                         ) : (
                           <Badge variant="secondary">No</Badge>
                         )}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-3 font-medium">Languages</td>
-                    {selectedModelData.map((model) => (
-                      <td key={model.name} className="p-3 text-center">
-                        {model.languages}+
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-3 font-medium">License</td>
-                    {selectedModelData.map((model) => (
-                      <td key={model.name} className="p-3 text-center text-xs">
-                        {model.license || "Unknown"}
                       </td>
                     ))}
                   </tr>
@@ -561,10 +478,6 @@ const ModelComparison = () => {
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <div className="text-gray-600">Parameters</div>
-                      <div className="font-medium">{model.parameters}</div>
-                    </div>
-                    <div>
                       <div className="text-gray-600">Context</div>
                       <div className="font-medium">
                         {model.contextWindow.toLocaleString()}
@@ -582,46 +495,6 @@ const ModelComparison = () => {
                         ${model.outputCost.toFixed(4)}
                       </div>
                     </div>
-                    <div>
-                      <div className="text-gray-600">Speed</div>
-                      <div
-                        className={`font-semibold ${getScoreColor(
-                          model.speed
-                        )}`}
-                      >
-                        {model.speed}/150
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-600">Reasoning</div>
-                      <div
-                        className={`font-semibold ${getScoreColor(
-                          model.reasoning
-                        )}`}
-                      >
-                        {model.reasoning}/100
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-600">Coding</div>
-                      <div
-                        className={`font-semibold ${getScoreColor(
-                          model.coding
-                        )}`}
-                      >
-                        {model.coding}/100
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-600">Creative</div>
-                      <div
-                        className={`font-semibold ${getScoreColor(
-                          model.creative
-                        )}`}
-                      >
-                        {model.creative}/100
-                      </div>
-                    </div>
                   </div>
 
                   <div className="border-t pt-3 space-y-2">
@@ -637,105 +510,12 @@ const ModelComparison = () => {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Languages:</span>
-                      <span>{model.languages}+</span>
-                    </div>
-                    {model.license && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">License:</span>
-                        <span className="text-xs">{model.license}</span>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Quick Comparison Cards */}
-      {selectedModelData.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {selectedModelData.map((model) => (
-            <Card
-              key={model.name}
-              className="hover:shadow-lg transition-shadow"
-            >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base sm:text-lg truncate">
-                  {model.name}
-                </CardTitle>
-                <Badge className={getProviderColor(model.provider)}>
-                  {model.provider}
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Reasoning</span>
-                  <span
-                    className={`font-semibold ${getScoreColor(
-                      model.reasoning
-                    )}`}
-                  >
-                    {model.reasoning}/100
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Coding</span>
-                  <span
-                    className={`font-semibold ${getScoreColor(model.coding)}`}
-                  >
-                    {model.coding}/100
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Speed</span>
-                  <span
-                    className={`font-semibold ${getScoreColor(model.speed)}`}
-                  >
-                    {model.speed}/150
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
-                    Output Cost (1K)
-                  </span>
-                  <span className="font-mono text-sm">
-                    ${model.outputCost.toFixed(4)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">
-                    Output Cost (1M)
-                  </span>
-                  <span className="font-mono text-sm text-gray-500">
-                    ${(model.outputCost * 1000).toFixed(2)}
-                  </span>
-                </div>
-                <div className="pt-2 border-t">
-                  <div className="text-xs text-gray-500">
-                    {model.contextWindow.toLocaleString()} context •{" "}
-                    {model.languages}+ languages
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {model.multimodal && (
-                      <Badge variant="outline" className="text-xs">
-                        Multimodal
-                      </Badge>
-                    )}
-                    {model.license && (
-                      <Badge variant="outline" className="text-xs">
-                        {model.license}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
       )}
     </div>
   );
