@@ -19,6 +19,7 @@ import PriceCalculator from "@/components/PriceCalculator";
 import TokenCalculator from "@/components/TokenCalculator";
 import HardwareCalculator from "@/components/HardwareCalculator";
 import ModelComparison from "@/components/ModelComparison";
+import OpenRouterStatusFooter from "@/components/OpenRouterStatusFooter";
 import { updatePageSEO, addStructuredData, STRUCTURED_DATA } from "@/lib/seo";
 
 const Index = () => {
@@ -277,12 +278,14 @@ const Index = () => {
             })}
           </div>
         </section>
+      </main>
 
-        {/* SEO: Enhanced Footer with social links and community engagement */}
-        <footer
-          className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-200"
-          role="contentinfo"
-        >
+      {/* OpenRouter Status Footer */}
+      <OpenRouterStatusFooter />
+
+      {/* SEO: Enhanced Footer with social links and community engagement */}
+      <footer className="bg-white border-t border-gray-200" role="contentinfo">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12">
           <div className="text-center text-gray-600">
             <h2 className="text-lg font-semibold mb-4">About LLM Toolkit</h2>
             <p className="max-w-4xl mx-auto text-sm leading-relaxed mb-6">
@@ -399,8 +402,8 @@ const Index = () => {
               </p>
             </div>
           </div>
-        </footer>
-      </main>
+        </div>
+      </footer>
     </div>
   );
 };

@@ -12,7 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { GitCompare, Search, X } from "lucide-react";
 import { useOpenRouterModelComparison } from "@/hooks/useOpenRouterModelComparison";
-import OpenRouterStatus from "@/components/OpenRouterStatus";
 import type { ModelData } from "@/lib/openrouter";
 
 const ModelComparison = () => {
@@ -155,9 +154,6 @@ const ModelComparison = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* OpenRouter Status Component */}
-      <OpenRouterStatus />
-
       {/* Model Selection */}
       <Card>
         <CardHeader>

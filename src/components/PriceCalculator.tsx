@@ -32,7 +32,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useOpenRouterModels } from "@/hooks/useOpenRouterModels";
-import OpenRouterStatus from "@/components/OpenRouterStatus";
 import type { ModelPricing } from "@/lib/openrouter";
 
 interface CalculationEntry {
@@ -130,9 +129,6 @@ const PriceCalculator = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* OpenRouter Status Component */}
-      <OpenRouterStatus />
-
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Calculator Form */}
         <Card>
