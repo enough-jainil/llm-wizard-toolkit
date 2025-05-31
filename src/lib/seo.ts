@@ -10,7 +10,7 @@ export const SEO_CONFIG = {
     "LLM calculator, AI model pricing, token calculator, GPT cost calculator, Claude pricing, Gemini cost, AI model comparison, LLM hardware requirements, language model tools, OpenAI calculator, Anthropic pricing, Google AI costs",
   twitterHandle: "@algogist",
   githubRepo: "https://github.com/enough-jainil/llm-wizard-toolkit",
-  ogImage: "/og-image.jpg",
+  ogImage: "/og-image.png",
   themeColor: "#2563eb",
   language: "en-US",
   locale: "en_US",

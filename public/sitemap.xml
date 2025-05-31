@@ -12,7 +12,7 @@
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://llm.traceback.in/og-image.jpg</image:loc>
+      <image:loc>https://llm.traceback.in/og-image.png</image:loc>
       <image:title>LLM Toolkit - AI Model Calculator Dashboard</image:title>
       <image:caption>Professional LLM toolkit with calculator and comparison tools</image:caption>
     </image:image>
