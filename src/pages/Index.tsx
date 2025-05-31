@@ -114,31 +114,44 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* SEO: Structured Header with proper heading hierarchy */}
+      {/* SEO: Structured Header with improved mobile layout */}
       <header
-        className="bg-white/90 backdrop-blur-sm shadow-sm border-b sticky top-0 z-40"
+        className="bg-white/95 backdrop-blur-md shadow-sm border-b sticky top-0 z-50"
         role="banner"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 lg:gap-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Brain
-                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-blue-600 flex-shrink-0"
-                aria-hidden="true"
-              />
-              <div className="hidden sm:block w-px h-6 sm:h-8 bg-gray-300"></div>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 lg:py-6">
+          <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Brain
+                  className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 text-blue-600 flex-shrink-0"
+                  aria-hidden="true"
+                />
+                <div className="hidden sm:block w-px h-6 sm:h-8 bg-gray-300"></div>
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight">
+                  LLM Toolkit
+                </h1>
+                <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-0.5 leading-relaxed">
+                  Professional AI Model Calculator & Comparison Platform
+                </p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight">
-                LLM Toolkit
-              </h1>
-              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-0.5 sm:mt-1 lg:mt-2 leading-relaxed">
-                Professional AI Model Calculator & Comparison Platform
-              </p>
-              <p className="text-gray-500 text-xs sm:text-sm mt-0.5 sm:mt-1 leading-relaxed">
-                Price Calculator • Token Counter • Hardware Requirements • Model
-                Comparison
-              </p>
+            {/* Mobile-optimized quick stats */}
+            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-end">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-full">
+                <Zap className="w-3 h-3 text-blue-600" />
+                <span className="text-xs font-medium text-blue-700">
+                  100+ Models
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 rounded-full">
+                <Calculator className="w-3 h-3 text-green-600" />
+                <span className="text-xs font-medium text-green-700">
+                  Real-time
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -146,11 +159,11 @@ const Index = () => {
 
       {/* SEO: Main content with proper semantic structure */}
       <main
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12"
+        className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8"
         role="main"
       >
         {/* SEO: Introduction section with key information */}
-        <section className="mb-8 lg:mb-12" aria-labelledby="intro-heading">
+        <section className="mb-6 lg:mb-8" aria-labelledby="intro-heading">
           <div className="sr-only">
             <h2 id="intro-heading">LLM Toolkit Features</h2>
             <p>
@@ -162,37 +175,37 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Main Calculator Tools */}
+        {/* Main Calculator Tools with improved mobile design */}
         <Card
-          className="shadow-xl border-0 bg-white/95 backdrop-blur-sm"
+          className="shadow-xl border-0 bg-white/98 backdrop-blur-sm"
           role="application"
           aria-labelledby="tools-heading"
         >
-          <CardHeader className="px-6 sm:px-8 py-6 sm:py-8">
+          <CardHeader className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             <CardTitle
-              className="text-xl sm:text-2xl lg:text-3xl text-center sm:text-left"
+              className="text-lg sm:text-xl lg:text-2xl text-center sm:text-left"
               id="tools-heading"
             >
               Professional LLM Utility Tools
             </CardTitle>
-            <CardDescription className="text-base sm:text-lg text-center sm:text-left">
+            <CardDescription className="text-sm sm:text-base text-center sm:text-left">
               Choose a tool below to calculate costs, count tokens, estimate
               hardware requirements, or compare AI models. Supports 100+ models
               from OpenAI, Anthropic, Google, Meta, Mistral, and other
               providers.
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-6 sm:px-8 pb-8">
+          <CardContent className="px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
               className="w-full"
               aria-label="LLM Toolkit Tools"
             >
-              {/* Enhanced Mobile-Friendly Tab Navigation */}
+              {/* Enhanced Mobile-First Tab Navigation */}
               <div className="mb-6 sm:mb-8">
                 <TabsList
-                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 w-full h-auto p-1.5 gap-1.5 bg-gray-100/80 rounded-xl"
+                  className="grid grid-cols-2 lg:grid-cols-5 w-full h-auto p-1 gap-1 bg-gray-100/80 rounded-xl"
                   role="tablist"
                 >
                   {tools.map((tool, index) => {
@@ -201,16 +214,11 @@ const Index = () => {
                       <TabsTrigger
                         key={tool.id}
                         value={tool.id}
-                        className={`flex flex-col items-center gap-1.5 sm:gap-2 lg:gap-3 p-3 sm:p-4 lg:p-5 h-auto min-h-[70px] sm:min-h-[80px] lg:min-h-[100px] text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 
+                        className={`flex flex-col items-center gap-2 p-3 sm:p-4 h-auto min-h-[80px] sm:min-h-[90px] text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 touch-manipulation
                           ${
                             activeTab === tool.id
-                              ? `${tool.bgColor} ${tool.color} shadow-md border-2 border-current/20 scale-105`
-                              : "hover:bg-white/80 hover:shadow-sm text-gray-600 hover:text-gray-900"
-                          }
-                          ${
-                            index >= 3
-                              ? "col-span-1 sm:col-span-1 lg:col-span-1"
-                              : ""
+                              ? `${tool.bgColor} ${tool.color} shadow-lg border-2 border-current/20 scale-[1.02]`
+                              : "hover:bg-white/90 hover:shadow-md text-gray-600 hover:text-gray-900"
                           }
                         `}
                         role="tab"
@@ -218,18 +226,16 @@ const Index = () => {
                         aria-controls={`${tool.id}-panel`}
                       >
                         <Icon
-                          className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0 transition-colors duration-200`}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 transition-all duration-200`}
                           aria-hidden="true"
                         />
-                        <span className="leading-tight text-center text-xs sm:text-sm">
-                          <span className="block sm:hidden">
-                            {tool.shortTitle}
-                          </span>
-                          <span className="hidden sm:block lg:hidden">
+                        <span className="leading-tight text-center font-semibold">
+                          <span className="block lg:hidden">
                             {tool.shortTitle}
                           </span>
                           <span className="hidden lg:block">
-                            {tool.shortTitle}
+                            {tool.title.split(" ")[0]}{" "}
+                            {tool.title.split(" ")[1]}
                           </span>
                         </span>
                       </TabsTrigger>
@@ -239,7 +245,7 @@ const Index = () => {
               </div>
 
               {/* Tab Content Panels with Better Spacing */}
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <TabsContent
                   value="price"
                   className="mt-0 focus:outline-none"
@@ -294,21 +300,21 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* SEO: Tool Overview Cards with structured data */}
-        <section className="mt-12 lg:mt-16" aria-labelledby="overview-heading">
+        {/* SEO: Tool Overview Cards with improved responsive grid */}
+        <section className="mt-8 lg:mt-12" aria-labelledby="overview-heading">
           <h2
             id="overview-heading"
-            className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-gray-900 text-center sm:text-left"
+            className="text-xl sm:text-2xl lg:text-3xl font-bold mb-6 sm:mb-8 text-gray-900 text-center sm:text-left"
           >
             Toolkit Features Overview
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {tools.map((tool) => {
               const Icon = tool.icon;
               return (
                 <Card
                   key={tool.id}
-                  className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 active:scale-95 group border-0 ${tool.bgColor}/30 hover:${tool.bgColor}/60`}
+                  className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 active:scale-95 group border-0 ${tool.bgColor}/30 hover:${tool.bgColor}/60 touch-manipulation`}
                   onClick={() => setActiveTab(tool.id)}
                   role="button"
                   tabIndex={0}
@@ -320,21 +326,21 @@ const Index = () => {
                     }
                   }}
                 >
-                  <CardHeader className="text-center p-6 sm:p-8">
+                  <CardHeader className="text-center p-4 sm:p-6">
                     <div
-                      className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl ${tool.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                      className={`w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 mx-auto mb-3 sm:mb-4 rounded-2xl ${tool.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
                     >
                       <Icon
-                        className={`w-8 h-8 sm:w-10 sm:h-10 ${tool.color}`}
+                        className={`w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 ${tool.color}`}
                         aria-hidden="true"
                       />
                     </div>
-                    <CardTitle className="text-lg sm:text-xl mb-3">
+                    <CardTitle className="text-base sm:text-lg lg:text-xl mb-2 sm:mb-3">
                       <h3 className="group-hover:text-gray-900 transition-colors duration-200">
                         {tool.title}
                       </h3>
                     </CardTitle>
-                    <CardDescription className="text-sm sm:text-base leading-relaxed text-gray-600 group-hover:text-gray-700 transition-colors duration-200">
+                    <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed text-gray-600 group-hover:text-gray-700 transition-colors duration-200">
                       {tool.description}
                     </CardDescription>
                     <div className="sr-only">Keywords: {tool.keywords}</div>
@@ -349,19 +355,19 @@ const Index = () => {
       {/* OpenRouter Status Footer */}
       <OpenRouterStatusFooter />
 
-      {/* SEO: Enhanced Footer with social links and community engagement */}
+      {/* SEO: Enhanced Footer with improved mobile layout */}
       <footer
-        className="bg-white border-t border-gray-200 mt-12"
+        className="bg-white border-t border-gray-200 mt-8 lg:mt-12"
         role="contentinfo"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="text-center text-gray-600 space-y-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+          <div className="text-center text-gray-600 space-y-6 sm:space-y-8">
             {/* About Section */}
-            <div className="space-y-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
                 About LLM Toolkit
               </h2>
-              <p className="max-w-4xl mx-auto text-sm sm:text-base leading-relaxed text-gray-600">
+              <p className="max-w-4xl mx-auto text-sm sm:text-base leading-relaxed text-gray-600 px-4">
                 LLM Toolkit is a comprehensive platform for Large Language Model
                 calculations and comparisons. We support over 100 AI models from
                 major providers including OpenAI (GPT-4, GPT-3.5), Anthropic
@@ -374,16 +380,16 @@ const Index = () => {
             </div>
 
             {/* Social Links */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                 Connect With Us
               </h3>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                 <a
                   href="https://github.com/enough-jainil/llm-wizard-toolkit"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 px-6 py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-all duration-200 text-sm font-medium min-w-[200px] justify-center hover:scale-105 active:scale-95"
+                  className="group inline-flex items-center gap-3 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-all duration-200 text-sm font-medium min-w-[180px] justify-center hover:scale-105 active:scale-95 touch-manipulation"
                   aria-label="View GitHub Repository"
                 >
                   <svg
@@ -405,7 +411,7 @@ const Index = () => {
                   href="https://x.com/algogist"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 px-6 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-all duration-200 text-sm font-medium min-w-[200px] justify-center hover:scale-105 active:scale-95"
+                  className="group inline-flex items-center gap-3 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-all duration-200 text-sm font-medium min-w-[180px] justify-center hover:scale-105 active:scale-95 touch-manipulation"
                   aria-label="Follow us on X (Twitter)"
                 >
                   <svg
@@ -421,30 +427,30 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Community Engagement */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 sm:p-8 max-w-4xl mx-auto">
-              <div className="space-y-4">
+            {/* Community Engagement with improved mobile layout */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
                     🚀 Help Us Improve
                   </h3>
-                  <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
+                  <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-2">
                     Found a bug? Want to request a new AI model? Have
                     suggestions for new features? Join our community and help
                     make LLM Toolkit better for everyone!
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
                   <a
                     href="https://github.com/enough-jainil/llm-wizard-toolkit/discussions"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col items-center gap-3 p-4 bg-white hover:bg-green-50 border border-green-200 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95"
+                    className="group flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white hover:bg-green-50 border border-green-200 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95 touch-manipulation"
                   >
-                    <div className="text-2xl">💡</div>
+                    <div className="text-xl sm:text-2xl">💡</div>
                     <div className="text-center">
-                      <div className="font-medium text-gray-900 group-hover:text-green-700">
+                      <div className="font-medium text-gray-900 group-hover:text-green-700 text-sm sm:text-base">
                         Request New Model
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
@@ -457,11 +463,11 @@ const Index = () => {
                     href="https://github.com/enough-jainil/llm-wizard-toolkit/issues"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col items-center gap-3 p-4 bg-white hover:bg-red-50 border border-red-200 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95"
+                    className="group flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white hover:bg-red-50 border border-red-200 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95 touch-manipulation"
                   >
-                    <div className="text-2xl">🐛</div>
+                    <div className="text-xl sm:text-2xl">🐛</div>
                     <div className="text-center">
-                      <div className="font-medium text-gray-900 group-hover:text-red-700">
+                      <div className="font-medium text-gray-900 group-hover:text-red-700 text-sm sm:text-base">
                         Report Bug
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
@@ -474,11 +480,11 @@ const Index = () => {
                     href="https://github.com/enough-jainil/llm-wizard-toolkit/discussions"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col items-center gap-3 p-4 bg-white hover:bg-blue-50 border border-blue-200 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95"
+                    className="group flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white hover:bg-blue-50 border border-blue-200 rounded-xl transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95 sm:col-span-1 col-span-1"
                   >
-                    <div className="text-2xl">💬</div>
+                    <div className="text-xl sm:text-2xl">💬</div>
                     <div className="text-center">
-                      <div className="font-medium text-gray-900 group-hover:text-blue-700">
+                      <div className="font-medium text-gray-900 group-hover:text-blue-700 text-sm sm:text-base">
                         Join Discussion
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
