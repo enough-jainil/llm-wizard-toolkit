@@ -503,7 +503,6 @@ const PriceCalculator = () => {
                   <th className="text-right p-2">Input (per 1M)</th>
                   <th className="text-right p-2">Output (per 1M)</th>
                   <th className="text-center p-2">Category</th>
-                  <th className="text-left p-2">License</th>
                 </tr>
               </thead>
               <tbody>
@@ -537,9 +536,6 @@ const PriceCalculator = () => {
                       >
                         {model.category}
                       </Badge>
-                    </td>
-                    <td className="p-2 text-xs">
-                      {model.license || "Unknown"}
                     </td>
                   </tr>
                 ))}
@@ -600,12 +596,6 @@ const PriceCalculator = () => {
                     </div>
                   </div>
                 </div>
-
-                {model.license && (
-                  <div className="text-xs text-gray-500 border-t pt-2">
-                    License: {model.license}
-                  </div>
-                )}
               </div>
             ))}
           </div>

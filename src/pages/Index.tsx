@@ -119,23 +119,23 @@ const Index = () => {
         className="bg-white/90 backdrop-blur-sm shadow-sm border-b sticky top-0 z-40"
         role="banner"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 lg:gap-6">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Brain
-                className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 flex-shrink-0"
+                className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-blue-600 flex-shrink-0"
                 aria-hidden="true"
               />
-              <div className="hidden sm:block w-px h-8 bg-gray-300"></div>
+              <div className="hidden sm:block w-px h-6 sm:h-8 bg-gray-300"></div>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight">
                 LLM Toolkit
               </h1>
-              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-1 sm:mt-2 leading-relaxed">
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-0.5 sm:mt-1 lg:mt-2 leading-relaxed">
                 Professional AI Model Calculator & Comparison Platform
               </p>
-              <p className="text-gray-500 text-xs sm:text-sm mt-1 leading-relaxed">
+              <p className="text-gray-500 text-xs sm:text-sm mt-0.5 sm:mt-1 leading-relaxed">
                 Price Calculator • Token Counter • Hardware Requirements • Model
                 Comparison
               </p>
@@ -190,7 +190,7 @@ const Index = () => {
               aria-label="LLM Toolkit Tools"
             >
               {/* Enhanced Mobile-Friendly Tab Navigation */}
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-8">
                 <TabsList
                   className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 w-full h-auto p-1.5 gap-1.5 bg-gray-100/80 rounded-xl"
                   role="tablist"
@@ -201,7 +201,7 @@ const Index = () => {
                       <TabsTrigger
                         key={tool.id}
                         value={tool.id}
-                        className={`flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-5 h-auto min-h-[80px] sm:min-h-[90px] lg:min-h-[100px] text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 
+                        className={`flex flex-col items-center gap-1.5 sm:gap-2 lg:gap-3 p-3 sm:p-4 lg:p-5 h-auto min-h-[70px] sm:min-h-[80px] lg:min-h-[100px] text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 
                           ${
                             activeTab === tool.id
                               ? `${tool.bgColor} ${tool.color} shadow-md border-2 border-current/20 scale-105`
@@ -218,10 +218,10 @@ const Index = () => {
                         aria-controls={`${tool.id}-panel`}
                       >
                         <Icon
-                          className={`w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 transition-colors duration-200`}
+                          className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0 transition-colors duration-200`}
                           aria-hidden="true"
                         />
-                        <span className="leading-tight text-center">
+                        <span className="leading-tight text-center text-xs sm:text-sm">
                           <span className="block sm:hidden">
                             {tool.shortTitle}
                           </span>

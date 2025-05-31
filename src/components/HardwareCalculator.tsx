@@ -376,6 +376,7 @@ const HardwareCalculator = () => {
                   onCheckedChange={(checked) =>
                     setEnableKvCache(checked === true)
                   }
+                  className="h-4 w-4 rounded-sm border border-gray-300 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white shadow-sm"
                 />
                 <Label htmlFor="kv-cache" className="flex items-center gap-2">
                   Enable KV Cache

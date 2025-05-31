@@ -16,8 +16,8 @@ import {
   X,
   Monitor,
   Smartphone,
-  Eye,
-  EyeOff,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useOpenRouterModelComparison } from "@/hooks/useOpenRouterModelComparison";
 import type { ModelData } from "@/lib/openrouter";
@@ -47,6 +47,7 @@ const ModelComparison = () => {
   const [filterProviders, setFilterProviders] = useState<string[]>(["all"]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("mobile");
+  const [displayCount, setDisplayCount] = useState<number>(12);
 
   const allProviders = [
     "All",
@@ -78,6 +79,14 @@ const ModelComparison = () => {
 
   const clearSearch = () => {
     setSearchTerm("");
+  };
+
+  const loadMore = () => {
+    setDisplayCount((prev) => Math.min(prev + 12, filteredModels.length));
+  };
+
+  const showLess = () => {
+    setDisplayCount(12);
   };
 
   const sortedModels = [...filteredModels].sort((a, b) => {
@@ -158,6 +167,10 @@ const ModelComparison = () => {
   const selectedModelData = uniqueModelComparisonData.filter((model) =>
     selectedModels.includes(model.name)
   );
+
+  const displayedModels = filteredModels.slice(0, displayCount);
+  const hasMore = displayCount < filteredModels.length;
+  const canShowLess = displayCount > 12;
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -277,12 +290,12 @@ const ModelComparison = () => {
                   </p>
                 </div>
               ) : (
-                filteredModels.slice(0, 12).map((model) => (
+                displayedModels.map((model) => (
                   <div
                     key={model.name}
-                    className={`group border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-95 ${
+                    className={`group border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md active:scale-95 ${
                       selectedModels.includes(model.name)
-                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        ? "border-blue-500 bg-blue-50 shadow-sm"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                     } ${
                       selectedModels.length >= 4 &&
@@ -300,15 +313,16 @@ const ModelComparison = () => {
                     }}
                   >
                     <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={selectedModels.includes(model.name)}
-                        onChange={() => {}}
-                        className="mt-1 flex-shrink-0"
-                        disabled={
-                          selectedModels.length >= 4 &&
-                          !selectedModels.includes(model.name)
-                        }
-                      />
+                      <div className="flex items-center h-5 mt-1">
+                        <Checkbox
+                          checked={selectedModels.includes(model.name)}
+                          disabled={
+                            selectedModels.length >= 4 &&
+                            !selectedModels.includes(model.name)
+                          }
+                          className="h-4 w-4 rounded-sm border border-gray-300 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white shadow-sm"
+                        />
+                      </div>
                       <div className="flex-1 min-w-0 space-y-3">
                         <div>
                           <h4 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
@@ -363,10 +377,37 @@ const ModelComparison = () => {
               )}
             </div>
 
-            {filteredModels.length > 12 && (
-              <div className="text-center text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                Showing first 12 of {filteredModels.length} models. Use search
-                to find specific models.
+            {/* Load More / Show Less Section */}
+            {filteredModels.length > 0 && (
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
+                  Showing {displayCount} of {filteredModels.length} models
+                </div>
+
+                <div className="flex gap-2">
+                  {hasMore && (
+                    <Button
+                      variant="outline"
+                      onClick={loadMore}
+                      className="flex items-center gap-2 hover:bg-blue-50"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                      Load More (
+                      {Math.min(12, filteredModels.length - displayCount)} more)
+                    </Button>
+                  )}
+
+                  {canShowLess && (
+                    <Button
+                      variant="ghost"
+                      onClick={showLess}
+                      className="flex items-center gap-2 text-gray-600 hover:bg-gray-100"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                      Show Less
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
